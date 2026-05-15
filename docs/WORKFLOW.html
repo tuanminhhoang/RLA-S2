@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RLA Delivery Assignment System - Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .diagram-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        .section {
+            margin: 40px 0;
+        }
+        ul {
+            background: #ecf0f1;
+            padding: 20px 40px;
+            border-radius: 5px;
+        }
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚚 RLA Delivery Assignment System - Workflow</h1>
+    
+    <h2>Overview</h2>
+    <p>A delivery assignment and real-time emergency management system for a pharmaceutical delivery company.</p>
+
+    <div class="section">
+        <h2>Phase 1: Morning Assignment (Before 9 AM)</h2>
+        <p>CEO selects deliveries one-by-one, system suggests best truck based on package specs and route, driver hours remaining.</p>
+        <div class="diagram-container">
+            <div class="mermaid">
+graph TD
+    A["CEO Accesses System<br/>(Before 9 AM)"] --> B["View List of<br/>All Delivery Requests"]
+    B --> C["CEO Selects a Delivery"]
+    C --> D["System Fetches Route<br/>from Google Maps API<br/>- Distance<br/>- ETA<br/>- Path"]
+    D --> E["System Analyzes Package"]
+    E --> E1["Package Size:<br/>Small/Large"]
+    E --> E2["Temperature:<br/>Frozen/Not"]
+    D --> F["System Filters Available Trucks"]
+    F --> F1["Match truck size<br/>to package"]
+    F --> F2["Match fridge capability<br/>to package requirement"]
+    E1 --> F
+    E2 --> F
+    F --> G["Rank Trucks by Suitability<br/>- Route fit<br/>- Driver hours remaining"]
+    G --> H["Suggest Best Truck<br/>to CEO"]
+    H --> I{"CEO Confirms?"}
+    I -->|No| J{"Try Another<br/>Truck?"}
+    J -->|Yes| H
+    J -->|No| C
+    I -->|Yes| K["Assign Delivery to Truck"]
+    K --> L["Update Driver's Route"]
+    L --> M["Delivery Status: ASSIGNED"]
+    M --> N{"More Deliveries?"}
+    N -->|Yes| C
+    N -->|No| O["All Assignments Complete"]
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Phase 2: Real-Time Tracking & Emergency Management</h2>
+        <p>System continuously simulates truck positions. When emergency arrives, calculates nearest available truck considering fridge requirements and driver hours.</p>
+        <div class="diagram-container">
+            <div class="mermaid">
+graph TD
+    A["System Running<br/>Tracking All Trucks"] --> B["GPS Simulation:<br/>Constant speed based on route"]
+    B --> C["Update Truck Positions<br/>Every X seconds"]
+    C --> D{"Emergency Delivery<br/>Request Arrives?"}
+    D -->|No| C
+    D -->|Yes| E["Extract Emergency Details<br/>- Location<br/>- Package requirements"]
+    E --> F["Calculate Distance<br/>from ALL trucks to<br/>Emergency Location"]
+    F --> G{"Emergency Package<br/>Requires Frozen?"}
+    G -->|Yes| H["Filter: Only trucks<br/>WITH fridge"]
+    G -->|No| I["Consider ALL trucks"]
+    H --> J["Find Nearest Truck"]
+    I --> J
+    J --> K["Check Driver's<br/>Remaining Hours"]
+    K --> L{"Driver has<br/>Hours Left?"}
+    L -->|Yes| M["Assign to this Truck"]
+    L -->|No| N["Check Next Nearest"]
+    N --> O{"Can Accept?"}
+    O -->|Yes| M
+    O -->|No| P["Check More Trucks"]
+    P --> Q{"Any Truck on Route<br/>Can Accept?"}
+    Q -->|Yes| M
+    Q -->|No| R["Nearest Truck Returns<br/>to Warehouse"]
+    R --> S["Fresh Driver Takes<br/>Emergency Delivery"]
+    M --> T["Add as NEXT STOP"]
+    S --> T
+    T --> U["Recalculate Route<br/>Update ETA"]
+    U --> C
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Data Flow Architecture</h2>
+        <p>How all components connect together in the system.</p>
+        <div class="diagram-container">
+            <div class="mermaid">
+graph LR
+    CEO["CEO Dashboard<br/>(Assignment)"]
+    DELIVERY["Delivery Requests<br/>Queue"]
+    TRUCKS["Trucks Database<br/>- ID, Size, Fridge"]
+    DRIVERS["Drivers Database<br/>- Hours, Location"]
+    ROUTES["Routes Database<br/>- Stops, ETAs"]
+    MAPS["Google Maps API<br/>- Route calc<br/>- ETA"]
+    SIM["Position Simulator<br/>- Constant speed"]
+    EMERGENCY["Emergency Requests"]
+    MONITOR["Monitoring Dashboard<br/>(Real-time tracking)"]
+    
+    CEO -->|Selects| DELIVERY
+    DELIVERY --> MAPS
+    MAPS -->|Route & ETA| ROUTES
+    TRUCKS -->|Filter| ROUTES
+    DRIVERS -->|Check hours| ROUTES
+    ROUTES -->|Assign| DRIVERS
+    DRIVERS -->|Current location| SIM
+    SIM -->|Updates position| MONITOR
+    EMERGENCY -->|Calculate distance| SIM
+    SIM -->|Find nearest| DRIVERS
+    EMERGENCY -->|Assign| ROUTES
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Database Requirements (To Be Designed)</h2>
+        <p>Based on this workflow, you'll need the following tables:</p>
+        <ul>
+            <li><strong>Deliveries</strong> - Request details, package specs, status</li>
+            <li><strong>Trucks</strong> - ID, size, fridge capability, current status</li>
+            <li><strong>Drivers</strong> - ID, hours worked, current position, assigned truck</li>
+            <li><strong>Routes</strong> - Delivery stops, ETAs, current progress</li>
+            <li><strong>EmergencyDeliveries</strong> - Emergency request tracking</li>
+            <li><strong>RouteSimulation</strong> - Current positions, timestamps (can be in-memory)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Key System Constraints</h2>
+        <ul>
+            <li>⏰ All assignments must complete <strong>before 9 AM</strong></li>
+            <li>🚗 Maximum <strong>8 hours</strong> driving per driver per day</li>
+            <li>📍 Position updates use <strong>constant speed simulation</strong> (not real GPS)</li>
+            <li>🔄 Emergency delivery becomes <strong>next immediate stop</strong> (not queued)</li>
+            <li>❌ <strong>One truck per delivery</strong> (no splitting)</li>
+            <li>🧊 <strong>Fridge matching required</strong> for frozen medicines</li>
+        </ul>
+    </div>
+
+    <script>
+        mermaid.contentLoaded();
+    </script>
+</body>
+</html>
