@@ -1,122 +1,73 @@
--- MediRun sample deliveries
+-- RLA / MediRun sample deliveries, planned routes, emergency request,
+-- and route simulation data.
 -- Run after 03_insert_seed_data.sql.
--- Dates used:
---   2026-05-14: normal weekday, 50 deliveries
---   2026-05-18: busy Monday, 58 deliveries
 
 USE medirun_db;
 
 INSERT INTO deliveries
-  (client_id, delivery_date, priority, deadline, package_size, refrigerated_required, service_time_minutes, is_emergency)
+  (client_id, requested_at, delivery_date, priority, package_size, frozen_required, deadline_at, service_time_minutes, status, google_maps_distance_km, google_maps_eta_minutes, notes)
 VALUES
-  -- Normal day: Thursday 2026-05-14
-  (1, '2026-05-14', 'urgent', '08:45:00', 'large', TRUE, 15, TRUE),
-  (2, '2026-05-14', 'urgent', '09:30:00', 'medium', TRUE, 12, FALSE),
-  (8, '2026-05-14', 'urgent', '09:45:00', 'small', FALSE, 8, TRUE),
-  (23, '2026-05-14', 'urgent', '10:00:00', 'small', FALSE, 8, FALSE),
-  (3, '2026-05-14', 'urgent', '10:15:00', 'medium', TRUE, 12, FALSE),
-  (9, '2026-05-14', 'urgent', '10:30:00', 'small', FALSE, 8, FALSE),
-  (24, '2026-05-14', 'urgent', '10:45:00', 'medium', FALSE, 10, FALSE),
-  (4, '2026-05-14', 'normal', '11:15:00', 'large', TRUE, 15, FALSE),
-  (10, '2026-05-14', 'normal', '11:30:00', 'small', FALSE, 8, FALSE),
-  (25, '2026-05-14', 'normal', '11:45:00', 'small', FALSE, 8, FALSE),
-  (11, '2026-05-14', 'normal', '12:00:00', 'medium', FALSE, 10, FALSE),
-  (5, '2026-05-14', 'normal', '12:15:00', 'large', TRUE, 15, FALSE),
-  (12, '2026-05-14', 'normal', '12:30:00', 'small', FALSE, 8, FALSE),
-  (26, '2026-05-14', 'normal', '12:45:00', 'medium', FALSE, 10, FALSE),
-  (13, '2026-05-14', 'normal', '13:00:00', 'medium', TRUE, 10, FALSE),
-  (27, '2026-05-14', 'normal', '13:15:00', 'small', FALSE, 8, FALSE),
-  (14, '2026-05-14', 'normal', '13:30:00', 'large', FALSE, 12, FALSE),
-  (6, '2026-05-14', 'normal', '13:45:00', 'medium', TRUE, 12, FALSE),
-  (15, '2026-05-14', 'normal', '14:00:00', 'small', FALSE, 8, FALSE),
-  (28, '2026-05-14', 'normal', '14:15:00', 'medium', FALSE, 10, FALSE),
-  (16, '2026-05-14', 'normal', '14:30:00', 'small', FALSE, 8, FALSE),
-  (29, '2026-05-14', 'normal', '14:45:00', 'small', FALSE, 8, FALSE),
-  (7, '2026-05-14', 'normal', '15:00:00', 'large', TRUE, 15, FALSE),
-  (17, '2026-05-14', 'normal', '15:15:00', 'medium', FALSE, 10, FALSE),
-  (30, '2026-05-14', 'normal', '15:30:00', 'small', FALSE, 8, FALSE),
-  (18, '2026-05-14', 'normal', '15:45:00', 'small', FALSE, 8, FALSE),
-  (31, '2026-05-14', 'normal', '16:00:00', 'medium', FALSE, 10, FALSE),
-  (19, '2026-05-14', 'normal', '16:15:00', 'small', FALSE, 8, FALSE),
-  (32, '2026-05-14', 'normal', '16:30:00', 'large', FALSE, 12, FALSE),
-  (20, '2026-05-14', 'normal', '16:45:00', 'medium', FALSE, 10, FALSE),
-  (33, '2026-05-14', 'normal', '17:00:00', 'small', FALSE, 8, FALSE),
-  (21, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (34, '2026-05-14', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (22, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (35, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (8, '2026-05-14', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (9, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (23, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (10, '2026-05-14', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (24, '2026-05-14', 'low', NULL, 'large', FALSE, 12, FALSE),
-  (11, '2026-05-14', 'normal', '13:20:00', 'small', FALSE, 8, FALSE),
-  (25, '2026-05-14', 'normal', '14:20:00', 'medium', FALSE, 10, FALSE),
-  (12, '2026-05-14', 'normal', '15:20:00', 'small', TRUE, 8, FALSE),
-  (26, '2026-05-14', 'normal', '16:20:00', 'small', FALSE, 8, FALSE),
-  (13, '2026-05-14', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (27, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (14, '2026-05-14', 'low', NULL, 'large', FALSE, 12, FALSE),
-  (28, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (15, '2026-05-14', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (29, '2026-05-14', 'low', NULL, 'small', FALSE, 8, FALSE),
+  -- Morning delivery request queue for 2026-05-15.
+  (2, '2026-05-15 06:45:00', '2026-05-15', 'urgent', 'large', TRUE, '2026-05-15 08:45:00', 15, 'assigned', 5.80, 24, 'Hospital delivery before 9 AM'),
+  (3, '2026-05-15 06:50:00', '2026-05-15', 'urgent', 'small', FALSE, '2026-05-15 09:30:00', 10, 'assigned', 4.20, 18, 'Morning clinic delivery'),
+  (7, '2026-05-15 07:00:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 11:00:00', 8, 'assigned', 2.10, 12, 'Pharmacy restock'),
+  (8, '2026-05-15 07:05:00', '2026-05-15', 'normal', 'small', TRUE, '2026-05-15 11:30:00', 8, 'assigned', 2.80, 14, 'Frozen medicine'),
+  (4, '2026-05-15 07:10:00', '2026-05-15', 'normal', 'large', FALSE, '2026-05-15 12:00:00', 12, 'assigned', 4.90, 20, 'Clinic supplies'),
+  (11, '2026-05-15 07:15:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 12:30:00', 8, 'assigned', 8.10, 28, 'Suburb pharmacy'),
+  (12, '2026-05-15 07:20:00', '2026-05-15', 'normal', 'large', FALSE, '2026-05-15 13:00:00', 12, 'assigned', 9.50, 32, 'Large pharmacy order'),
+  (5, '2026-05-15 07:30:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 13:30:00', 10, 'pending', 7.70, 30, 'Waiting for CEO confirmation'),
+  (9, '2026-05-15 07:35:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 14:00:00', 8, 'assigned', 3.20, 16, 'Assigned to small truck'),
+  (13, '2026-05-15 07:40:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 14:30:00', 8, 'pending', 7.90, 29, 'Pending assignment'),
+  (6, '2026-05-15 07:45:00', '2026-05-15', 'normal', 'large', TRUE, '2026-05-15 15:00:00', 12, 'pending', 10.20, 35, 'Frozen clinic shipment'),
+  (10, '2026-05-15 07:50:00', '2026-05-15', 'normal', 'small', FALSE, '2026-05-15 15:30:00', 8, 'pending', 3.80, 18, 'Pending assignment'),
 
-  -- Busy Monday: 2026-05-18
-  (1, '2026-05-18', 'urgent', '08:30:00', 'large', TRUE, 15, TRUE),
-  (2, '2026-05-18', 'urgent', '09:15:00', 'medium', TRUE, 12, FALSE),
-  (3, '2026-05-18', 'urgent', '09:30:00', 'medium', TRUE, 12, TRUE),
-  (8, '2026-05-18', 'urgent', '09:45:00', 'small', FALSE, 8, FALSE),
-  (23, '2026-05-18', 'urgent', '10:00:00', 'small', FALSE, 8, FALSE),
-  (4, '2026-05-18', 'urgent', '10:15:00', 'large', TRUE, 15, FALSE),
-  (9, '2026-05-18', 'urgent', '10:30:00', 'small', FALSE, 8, FALSE),
-  (24, '2026-05-18', 'urgent', '10:45:00', 'medium', FALSE, 10, FALSE),
-  (10, '2026-05-18', 'urgent', '11:00:00', 'small', FALSE, 8, TRUE),
-  (5, '2026-05-18', 'normal', '11:15:00', 'large', TRUE, 15, FALSE),
-  (25, '2026-05-18', 'normal', '11:30:00', 'small', FALSE, 8, FALSE),
-  (11, '2026-05-18', 'normal', '11:45:00', 'medium', FALSE, 10, FALSE),
-  (6, '2026-05-18', 'normal', '12:00:00', 'medium', TRUE, 12, FALSE),
-  (26, '2026-05-18', 'normal', '12:15:00', 'small', FALSE, 8, FALSE),
-  (12, '2026-05-18', 'normal', '12:30:00', 'small', TRUE, 8, FALSE),
-  (27, '2026-05-18', 'normal', '12:45:00', 'medium', FALSE, 10, FALSE),
-  (13, '2026-05-18', 'normal', '13:00:00', 'medium', FALSE, 10, FALSE),
-  (7, '2026-05-18', 'normal', '13:15:00', 'large', TRUE, 15, FALSE),
-  (28, '2026-05-18', 'normal', '13:30:00', 'small', FALSE, 8, FALSE),
-  (14, '2026-05-18', 'normal', '13:45:00', 'large', FALSE, 12, FALSE),
-  (29, '2026-05-18', 'normal', '14:00:00', 'small', FALSE, 8, FALSE),
-  (15, '2026-05-18', 'normal', '14:15:00', 'small', FALSE, 8, FALSE),
-  (30, '2026-05-18', 'normal', '14:30:00', 'medium', FALSE, 10, FALSE),
-  (16, '2026-05-18', 'normal', '14:45:00', 'small', FALSE, 8, FALSE),
-  (31, '2026-05-18', 'normal', '15:00:00', 'small', FALSE, 8, FALSE),
-  (17, '2026-05-18', 'normal', '15:15:00', 'medium', FALSE, 10, FALSE),
-  (32, '2026-05-18', 'normal', '15:30:00', 'large', FALSE, 12, FALSE),
-  (18, '2026-05-18', 'normal', '15:45:00', 'small', TRUE, 8, FALSE),
-  (33, '2026-05-18', 'normal', '16:00:00', 'small', FALSE, 8, FALSE),
-  (19, '2026-05-18', 'normal', '16:15:00', 'medium', FALSE, 10, FALSE),
-  (34, '2026-05-18', 'normal', '16:30:00', 'small', FALSE, 8, FALSE),
-  (20, '2026-05-18', 'normal', '16:45:00', 'medium', FALSE, 10, FALSE),
-  (35, '2026-05-18', 'normal', '17:00:00', 'small', FALSE, 8, FALSE),
-  (21, '2026-05-18', 'normal', '17:15:00', 'small', FALSE, 8, FALSE),
-  (22, '2026-05-18', 'normal', '17:30:00', 'medium', FALSE, 10, FALSE),
-  (8, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (9, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (10, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (11, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (12, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (13, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (14, '2026-05-18', 'low', NULL, 'large', FALSE, 12, FALSE),
-  (15, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (16, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (17, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (18, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (19, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (20, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (21, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (22, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (23, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (24, '2026-05-18', 'low', NULL, 'large', FALSE, 12, FALSE),
-  (25, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (26, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (27, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (28, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE),
-  (29, '2026-05-18', 'low', NULL, 'medium', FALSE, 10, FALSE),
-  (30, '2026-05-18', 'low', NULL, 'small', FALSE, 8, FALSE);
+  -- Emergency request for real-time phase.
+  (14, '2026-05-15 10:20:00', '2026-05-15', 'emergency', 'small', TRUE, '2026-05-15 11:15:00', 8, 'assigned', 8.70, 26, 'Emergency frozen medicine; add as next stop');
+
+INSERT INTO routes
+  (route_date, truck_id, driver_id, route_status, total_distance_km, estimated_total_minutes, current_stop_order, google_maps_polyline, last_recalculated_at)
+VALUES
+  ('2026-05-15', 1, 1, 'active', 12.40, 95, 1, NULL, '2026-05-15 08:10:00'),
+  ('2026-05-15', 4, 3, 'planned', 22.10, 145, 0, NULL, '2026-05-15 08:15:00'),
+  ('2026-05-15', 6, 5, 'needs_recalculation', 24.30, 158, 1, NULL, '2026-05-15 10:25:00');
+
+UPDATE trucks
+SET current_status = 'on_route'
+WHERE id IN (1, 6);
+
+UPDATE trucks
+SET current_status = 'assigned'
+WHERE id = 4;
+
+UPDATE drivers
+SET current_status = 'on_route', hours_worked = 2.25
+WHERE id IN (1, 5);
+
+UPDATE drivers
+SET current_status = 'assigned', hours_worked = 1.00
+WHERE id = 3;
+
+INSERT INTO route_stops
+  (route_id, delivery_id, stop_order, planned_arrival_at, status, is_next_stop)
+VALUES
+  (1, 2, 1, '2026-05-15 09:20:00', 'in_progress', TRUE),
+  (1, 3, 2, '2026-05-15 10:10:00', 'assigned', FALSE),
+  (1, 9, 3, '2026-05-15 11:00:00', 'assigned', FALSE),
+  (2, 5, 1, '2026-05-15 10:30:00', 'assigned', FALSE),
+  (2, 6, 2, '2026-05-15 11:45:00', 'assigned', FALSE),
+  (2, 7, 3, '2026-05-15 12:40:00', 'assigned', FALSE),
+  (3, 1, 1, '2026-05-15 08:35:00', 'assigned', FALSE),
+  (3, 13, 2, '2026-05-15 11:05:00', 'assigned', TRUE),
+  (3, 4, 3, '2026-05-15 12:10:00', 'assigned', FALSE);
+
+INSERT INTO emergency_deliveries
+  (delivery_id, emergency_status, nearest_truck_id, assigned_truck_id, assigned_driver_id, distance_to_assigned_truck_km, required_completion_minutes, decision_notes, created_at)
+VALUES
+  (13, 'assigned', 6, 6, 5, 3.40, 55, 'Fridge truck selected because emergency package requires frozen transport.', '2026-05-15 10:21:00');
+
+INSERT INTO route_simulation
+  (truck_id, route_id, simulated_at, latitude, longitude, speed_kmh, heading_degrees, current_stop_order)
+VALUES
+  (1, 1, '2026-05-15 10:20:00', 48.8685000, 2.3599000, 28.00, 45, 1),
+  (4, 2, '2026-05-15 10:20:00', 48.8425000, 2.3300000, 24.00, 120, 0),
+  (6, 3, '2026-05-15 10:20:00', 48.8270000, 2.2800000, 32.00, 90, 1);
