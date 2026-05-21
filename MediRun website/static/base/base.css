@@ -1,0 +1,110 @@
+:root {
+    --green: #1f8f4e;
+    --green-dark: #15683a;
+    --green-soft: #e8f6ee;
+    --white: #ffffff;
+    --text: #173221;
+    --border: #cfe7d7;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--green-soft) 0%, var(--white) 32%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: var(--green);
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    flex: 1;
+}
+
+.flash-stack {
+    width: 100%;
+    max-width: 1200px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+}
+
+.flash-message {
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid transparent;
+    font-weight: 700;
+}
+
+.flash-success {
+    background: #eaf8ef;
+    color: #136436;
+    border-color: #bfe6cb;
+}
+
+.flash-info {
+    background: #eef7ef;
+    color: #1b5e34;
+    border-color: #cde7d6;
+}
+
+.flash-error {
+    background: #fff4f4;
+    color: #b42318;
+    border-color: #f3c1c1;
+}
+
+.page-shell {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 14px 30px rgba(18, 60, 31, 0.08);
+}
+
+footer {
+    background: var(--green-dark);
+    color: var(--white);
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+footer p {
+    margin: 0;
+}

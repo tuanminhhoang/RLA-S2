@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - MediRun{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login/login.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-box">
+        <div class="form-header">
+            <h2>Welcome to <br>MediRun</h2>
+            <p class="subtitle">Please sign in to your account</p>
+        </div>
+
+        {% if error %}
+        <div id="error-message" class="error-message">
+            <span>Incorrect username or password.</span>
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('login') }}" method="POST" class="login-form">
+            <div class="input-group">
+                <input type="text" id="username" name="username" class="input-field" placeholder=" " required>
+                <label for="username" class="floating-label">Username</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" class="input-field" placeholder=" " required>
+                <label for="password" class="floating-label">Password</label>
+
+                <button type="button" class="eye-icon" data-target="password" aria-label="Toggle Password Visibility">
+                    <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                </button>
+            </div>
+
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+
+        <div class="register-link">
+            <p>New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='login/login.js') }}"></script>
+{% endblock %}
