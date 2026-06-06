@@ -1,10 +1,91 @@
 /* Driver Dashboard Styles */
 
 .dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    background: #f8f9fa;
+    display: flex;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: #eef2f5;
     min-height: 100vh;
+}
+
+.app-sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #10202a;
+    color: white;
+    padding: 24px 18px;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.driver-sidebar .sidebar-nav a.active {
+    background: #2e8f7b;
+}
+
+.sidebar-brand {
+    font-size: 1.45em;
+    font-weight: 800;
+}
+
+.sidebar-user {
+    margin: 0;
+    color: #b8c7d0;
+    font-size: 0.9em;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-nav a,
+.sidebar-logout {
+    color: #dce7ec;
+    text-decoration: none;
+    padding: 14px 14px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background: #2e8f7b;
+    color: #ffffff;
+}
+
+.sidebar-logout {
+    margin-top: auto;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.app-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.page-header {
+    background: white;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #1e2d35;
+    font-size: 1.75em;
+}
+
+.page-header p {
+    margin: 4px 0 0;
+    color: #64747c;
 }
 
 .dashboard-header {
@@ -68,7 +149,109 @@
 }
 
 .dashboard-main {
-    padding: 30px;
+    padding: 24px;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.filter-bar label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #444;
+    font-weight: 700;
+}
+
+.filter-bar input {
+    min-width: 150px;
+    padding: 9px 10px;
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+}
+
+.route-block {
+    margin-bottom: 22px;
+}
+
+.stop-card {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 14px;
+}
+
+.stop-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2e8f7b;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.stop-body p:first-child {
+    margin-top: 0;
+}
+
+.driver-week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.driver-week-card {
+    background: white;
+    border-radius: 8px;
+    padding: 18px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid #2e8f7b;
+}
+
+.driver-week-card h2 {
+    margin: 0;
+    color: #1e2d35;
+    font-size: 1.25em;
+}
+
+.driver-week-card p {
+    margin: 4px 0 14px;
+    color: #64747c;
+}
+
+.driver-week-stats {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.driver-week-stats span {
+    background: #f3f7f8;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.status-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.warning-text {
+    color: #b71c1c;
+    font-weight: 700;
 }
 
 .phase-section {
@@ -310,15 +493,44 @@
     font-style: italic;
 }
 
+.delivery-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+.delivery-status-badge.status-assigned {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.delivery-status-badge.status-in_transit {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.delivery-status-badge.status-delivered {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.delivery-status-badge.status-delayed,
+.delivery-status-badge.status-failed {
+    background: #ffebee;
+    color: #b71c1c;
+}
+
 /* Buttons */
 .btn-arrived,
 .btn-simulate {
-    padding: 10px 16px;
+    padding: 13px 18px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.9em;
+    font-size: 1rem;
     transition: all 0.3s ease;
     margin: 5px;
 }
@@ -377,6 +589,21 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .app-sidebar {
+        width: auto;
+        min-height: auto;
+        position: static;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
     .status-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -438,6 +665,10 @@
 }
 
 @media (max-width: 480px) {
+    .stop-card {
+        grid-template-columns: 1fr;
+    }
+
     .dashboard-header {
         padding: 15px;
     }

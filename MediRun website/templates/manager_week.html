@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekly Plan - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('manager_dashboard', date=selected_date) }}">Dashboard</a>
+            <a class="active" href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
+            <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
+            <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>Weekly Plan</h1>
+                <p>Use this page for a Monday-to-Sunday demo view.</p>
+            </div>
+        </header>
+
+        <form class="filter-bar" method="get">
+            <label>
+                Any date in week
+                <input type="date" name="date" value="{{ selected_date }}">
+            </label>
+            <button class="btn-assign" type="submit">Open Week</button>
+        </form>
+
+        <section class="week-grid">
+            {% for day in week %}
+            <article class="week-card">
+                <div class="week-card-header">
+                    <h2>{{ day.date.strftime('%A') }}</h2>
+                    <p>{{ day.date.strftime('%Y-%m-%d') }}</p>
+                </div>
+                <div class="week-stats">
+                    <span><strong>{{ day.total }}</strong> deliveries</span>
+                    <span><strong>{{ day.urgent or 0 }}</strong> urgent</span>
+                    <span><strong>{{ day.refrigerated or 0 }}</strong> fridge</span>
+                    <span><strong>{{ day.routes or 0 }}</strong> routes</span>
+                </div>
+                <div class="week-actions">
+                    <a class="btn-select" href="{{ url_for('manager_dashboard', date=day.date.strftime('%Y-%m-%d')) }}">Day</a>
+                    <a class="btn-select" href="{{ url_for('generate_plan', date=day.date.strftime('%Y-%m-%d')) }}">Plan</a>
+                    <a class="btn-select" href="{{ url_for('plan_results', plan_date=day.date.strftime('%Y-%m-%d')) }}">Routes</a>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+    </main>
+</div>
+{% endblock %}

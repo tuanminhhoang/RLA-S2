@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Plan Results - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('manager_dashboard', date=selected_date) }}">Dashboard</a>
+            <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
+            <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
+            <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+            <a class="active" href="{{ url_for('plan_results', plan_date=selected_date) }}">Plan Results</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>Plan Results</h1>
+                <p>{{ selected_date }} route plan</p>
+            </div>
+            <a href="{{ url_for('generate_plan', date=selected_date) }}" class="primary-action">Regenerate</a>
+        </header>
+
+        <section class="summary-grid">
+            <div class="summary-card"><span>{{ stats.routes }}</span><p>Routes</p></div>
+            <div class="summary-card"><span>{{ stats.stops }}</span><p>Stops</p></div>
+            <div class="summary-card warning"><span>{{ stats.warnings }}</span><p>Warnings</p></div>
+            <div class="summary-card warning"><span>{{ stats.unassigned }}</span><p>Unassigned</p></div>
+        </section>
+
+        {% for route in routes %}
+        <section class="table-panel route-panel">
+            <h2>{{ route.driver_name }} - {{ route.plate_number }} {{ route.model }}</h2>
+            <p>{{ route.total_stops }} stops. Estimated end: {{ route.estimated_end_time or '-' }}. Duration: {{ route.total_duration_minutes }} minutes.</p>
+            {% if route.warning_text %}<p class="warning-text">{{ route.warning_text }}</p>{% endif %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Stop</th>
+                        <th>Client</th>
+                        <th>Zone</th>
+                        <th>Deadline</th>
+                        <th>Travel</th>
+                        <th>Service</th>
+                        <th>Distance</th>
+                        <th>ETA</th>
+                        <th>Priority</th>
+                        <th>Fridge</th>
+                        <th>Status</th>
+                        <th>Warnings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stop in route.stops %}
+                    <tr>
+                        <td>{{ stop.stop_order }}</td>
+                        <td>{{ stop.client_name or stop.stop_address }}</td>
+                        <td>{{ stop.zone }}</td>
+                        <td>{{ stop.deadline or '-' }}</td>
+                        <td>{{ stop.travel_minutes }} min</td>
+                        <td>{{ stop.service_minutes }} min</td>
+                        <td>{{ stop.estimated_distance_km }} km</td>
+                        <td>{{ stop.estimated_arrival_time or '-' }}</td>
+                        <td>{{ stop.priority }}</td>
+                        <td>{% if stop.requires_fridge %}Yes{% else %}No{% endif %}</td>
+                        <td>{{ stop.status }}</td>
+                        <td>{{ stop.warning_text or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        {% else %}
+        <section class="vehicle-suggestions">
+            <p class="no-suggestions">No routes have been generated for this date yet.</p>
+        </section>
+        {% endfor %}
+    </main>
+</div>
+{% endblock %}

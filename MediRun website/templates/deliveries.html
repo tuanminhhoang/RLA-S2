@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Deliveries - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('manager_dashboard', date=selected_date) }}">Dashboard</a>
+            <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
+            <a class="active" href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
+            <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>Deliveries</h1>
+                <p>Filter and inspect daily medical delivery requests.</p>
+            </div>
+        </header>
+
+        <form class="filter-bar" method="get">
+            <label>Date <input type="date" name="date" value="{{ selected_date }}"></label>
+            <label>Priority
+                <select name="priority">
+                    <option value="">All</option>
+                    {% for item in ['urgent', 'normal', 'low'] %}
+                    <option value="{{ item }}" {% if filters.priority == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Zone
+                <select name="zone">
+                    <option value="">All</option>
+                    {% for item in ['hospital', 'paris', 'suburb'] %}
+                    <option value="{{ item }}" {% if filters.zone == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Status
+                <select name="status">
+                    <option value="">All</option>
+                    {% for item in ['pending', 'assigned', 'in_transit', 'delivered', 'delayed', 'failed'] %}
+                    <option value="{{ item }}" {% if filters.status == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Fridge
+                <select name="requires_fridge">
+                    <option value="">All</option>
+                    <option value="1" {% if filters.requires_fridge == '1' %}selected{% endif %}>Required</option>
+                    <option value="0" {% if filters.requires_fridge == '0' %}selected{% endif %}>Not required</option>
+                </select>
+            </label>
+            <button class="btn-assign" type="submit">Apply</button>
+        </form>
+
+        <section class="table-panel">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Zone</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Package</th>
+                        <th>Fridge</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in deliveries %}
+                    <tr>
+                        <td>{{ delivery.client_name or '-' }}</td>
+                        <td>{{ delivery.client_type or '-' }}</td>
+                        <td>{{ delivery.zone }}</td>
+                        <td><span class="status-badge status-{{ delivery.priority }}">{{ delivery.priority }}</span></td>
+                        <td>{{ delivery.deadline or '-' }}</td>
+                        <td>{{ delivery.package_size }} / {{ delivery.package_weight_kg }}kg</td>
+                        <td>{% if delivery.requires_fridge %}Yes{% else %}No{% endif %}</td>
+                        <td><span class="status-badge status-{{ delivery.status }}">{{ delivery.status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="empty-cell">No deliveries match the filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+{% endblock %}

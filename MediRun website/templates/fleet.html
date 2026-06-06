@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Fleet - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('manager_dashboard', date=selected_date) }}">Dashboard</a>
+            <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
+            <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
+            <a class="active" href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>Drivers And Vehicles</h1>
+                <p>Availability and daily vehicle assignments for {{ selected_date }}.</p>
+            </div>
+        </header>
+
+        <form class="filter-bar" method="get">
+            <label>Date <input type="date" name="date" value="{{ selected_date }}"></label>
+            <button class="btn-assign" type="submit">View</button>
+        </form>
+
+        <div class="phase-content">
+            <section class="table-panel">
+                <h2>Drivers</h2>
+                <table class="data-table">
+                    <thead><tr><th>Name</th><th>Phone</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for driver in drivers %}
+                        <tr><td>{{ driver.full_name }}</td><td>{{ driver.phone_number }}</td><td>{{ driver.status }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="table-panel">
+                <h2>Vehicles</h2>
+                <table class="data-table">
+                    <thead><tr><th>Plate</th><th>Model</th><th>Size</th><th>Fridge</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for vehicle in vehicles %}
+                        <tr>
+                            <td>{{ vehicle.plate_number }}</td>
+                            <td>{{ vehicle.model }}</td>
+                            <td>{{ vehicle.size }}</td>
+                            <td>{% if vehicle.has_fridge %}Yes{% else %}No{% endif %}</td>
+                            <td>{{ vehicle.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <section class="table-panel">
+            <h2>Daily Vehicle Assignments</h2>
+            <table class="data-table">
+                <thead><tr><th>Driver</th><th>Vehicle</th><th>Model</th></tr></thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr><td>{{ assignment.full_name }}</td><td>{{ assignment.plate_number }}</td><td>{{ assignment.model }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="3" class="empty-cell">No assignments generated for this date yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+{% endblock %}

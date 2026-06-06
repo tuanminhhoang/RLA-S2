@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}My Week - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/driver.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar driver-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('driver_dashboard', date=selected_date) }}">My Route</a>
+            <a class="active" href="{{ url_for('driver_week', date=selected_date) }}">My Week</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>My Week</h1>
+                <p>Your route workload from Monday to Sunday.</p>
+            </div>
+        </header>
+
+        <form class="filter-bar" method="get">
+            <label>
+                Any date in week
+                <input type="date" name="date" value="{{ selected_date }}">
+            </label>
+            <button class="btn-arrived" type="submit">Open Week</button>
+        </form>
+
+        {% if not driver %}
+        <section class="phase-content">
+            <p class="no-deliveries">This account is not linked to a driver record yet.</p>
+        </section>
+        {% endif %}
+
+        <section class="driver-week-grid">
+            {% for day in week %}
+            <article class="driver-week-card">
+                <h2>{{ day.date.strftime('%A') }}</h2>
+                <p>{{ day.date.strftime('%Y-%m-%d') }}</p>
+                <div class="driver-week-stats">
+                    <span>{{ day.routes or 0 }} route(s)</span>
+                    <span>{{ day.stops or 0 }} stop(s)</span>
+                    <span>{{ day.minutes or 0 }} minutes</span>
+                </div>
+                <a class="btn-arrived" href="{{ url_for('driver_dashboard', date=day.date.strftime('%Y-%m-%d')) }}">Open Route</a>
+            </article>
+            {% endfor %}
+        </section>
+    </main>
+</div>
+{% endblock %}

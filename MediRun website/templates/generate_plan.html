@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Plan - MediRun{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">MediRun</div>
+        <p class="sidebar-user">{{ username }}</p>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('manager_dashboard', date=selected_date) }}">Dashboard</a>
+            <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
+            <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
+            <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
+            <a class="active" href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+        </nav>
+        <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="dashboard-main app-main">
+        <header class="page-header">
+            <div>
+                <h1>Generate Daily Delivery Plan</h1>
+                <p>Build routes using the greedy planning heuristic.</p>
+            </div>
+        </header>
+
+        <section class="vehicle-suggestions plan-panel">
+            <h2>Plan Setup</h2>
+            <p>{{ pending_count }} pending deliveries are ready to plan for {{ selected_date }}.</p>
+            <form method="post" class="filter-bar">
+                <label>
+                    Delivery date
+                    <input type="date" name="date" value="{{ selected_date }}">
+                </label>
+                <button class="btn-emergency" type="submit">Generate Today's Delivery Plan</button>
+            </form>
+            <p class="hint-text">The system sorts urgent deliveries first, handles refrigerated stops early, chooses compatible vehicles, estimates zone travel time, saves routes, and records warnings.</p>
+        </section>
+    </main>
+</div>
+{% endblock %}
