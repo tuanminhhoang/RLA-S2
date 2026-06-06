@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block title %}CEO Dashboard - MediRun{% endblock %}
+
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard/ceo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>MediRun CEO Dashboard</h1>
+            <p class="welcome-text">Welcome, {{ username }}!</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-phase-toggle" id="phaseToggle">
+                <span>Phase 1: Morning Assignment</span>
+            </button>
+            <button class="btn-emergency" id="emergencyBtn">🚨 Emergency Delivery</button>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <!-- Phase 1: Morning Assignment -->
+        <section id="phase1" class="phase-section active">
+            <h2>Phase 1: Morning Assignment</h2>
+            <div class="phase-content">
+                <div class="deliveries-list">
+                    <h3>Pending Deliveries</h3>
+                    <div id="deliveriesContainer" class="deliveries-table">
+                        {% if deliveries %}
+                            {% for delivery in deliveries %}
+                            <div class="delivery-card" data-id="{{ delivery.id }}">
+                                <div class="delivery-info">
+                                    <p class="delivery-from"><strong>From:</strong> {{ delivery.pickup_address }}</p>
+                                    <p class="delivery-to"><strong>To:</strong> {{ delivery.delivery_address }}</p>
+                                    <p class="delivery-package">
+                                        <strong>Package:</strong> 
+                                        {{ delivery.package_size | upper }}
+                                        {% if delivery.requires_fridge %}
+                                            <span class="badge-fridge">🧊 Requires Fridge</span>
+                                        {% endif %}
+                                        ({{ delivery.package_weight_kg }}kg)
+                                    </p>
+                                    <p class="delivery-status">
+                                        <strong>Status:</strong> 
+                                        <span class="status-badge status-{{ delivery.status }}">{{ delivery.status | upper }}</span>
+                                    </p>
+                                </div>
+                                <div class="delivery-actions">
+                                    <button class="btn-assign" onclick="selectDelivery({{ delivery.id }}, '{{ delivery.package_size }}', {{ delivery.requires_fridge | lower }})">
+                                        Assign Vehicle
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-deliveries">No pending deliveries at the moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Vehicle Suggestions -->
+                <div class="vehicle-suggestions" id="vehicleSuggestions" style="display: none;">
+                    <h3>Suggested Vehicles</h3>
+                    <div id="suggestionsContainer" class="suggestions-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 2: Real-time Tracking -->
+        <section id="phase2" class="phase-section">
+            <h2>Phase 2: Real-time Tracking & Emergency Management</h2>
+            <div class="phase-content">
+                <div class="tracking-dashboard">
+                    <h3>Active Deliveries</h3>
+                    <div id="trackingContainer" class="tracking-list">
+                        <p>No active deliveries in progress.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Emergency Modal -->
+<div id="emergencyModal" class="modal" style="display: none;">
+    <div class="modal-content emergency-modal">
+        <div class="modal-header">
+            <h2>🚨 New Emergency Delivery</h2>
+            <button class="btn-close" onclick="closeEmergencyModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="emergencyForm">
+                <div class="form-group">
+                    <label for="emergencyLocation">Emergency Location:</label>
+                    <input type="text" id="emergencyLocation" placeholder="Street address or description" value="Critical Care Facility - Downtown" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyPackageSize">Package Size:</label>
+                    <select id="emergencyPackageSize" required>
+                        <option value="small">Small</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="emergencyFridge">
+                        Requires Refrigeration (Frozen Goods)
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyWeight">Package Weight (kg):</label>
+                    <input type="number" id="emergencyWeight" value="10" min="1" max="500" required>
+                </div>
+
+                <button type="button" class="btn-get-suggestions" onclick="getEmergencySuggestions()">
+                    Get Vehicle Suggestions
+                </button>
+            </form>
+
+            <div id="emergencySuggestions" class="emergency-suggestions" style="display: none;">
+                <h4>Available Vehicles (Nearest First)</h4>
+                <div id="emergencySuggestionsContainer" class="suggestions-list"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeEmergencyModal()">Cancel</button>
+            <button class="btn-assign-emergency" id="assignEmergencyBtn" style="display: none;" onclick="assignEmergencyDelivery()">
+                Assign Emergency
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Selection Modal -->
+<div id="vehicleModal" class="modal" style="display: none;">
+    <div class="modal-content vehicle-modal">
+        <div class="modal-header">
+            <h2>Select Vehicle for Delivery</h2>
+            <button class="btn-close" onclick="closeVehicleModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="vehicleModalInfo"></p>
+            <div id="vehicleOptionsContainer" class="vehicle-options"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeVehicleModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentDelivery = null;
+    let selectedVehicle = null;
+    let selectedEmergencyVehicle = null;
+
+    // Phase Toggle
+    document.getElementById('phaseToggle').addEventListener('click', function() {
+        const phase1 = document.getElementById('phase1');
+        const phase2 = document.getElementById('phase2');
+        const toggle = this;
+
+        if (phase1.classList.contains('active')) {
+            phase1.classList.remove('active');
+            phase2.classList.add('active');
+            toggle.innerHTML = '<span>Phase 2: Real-time Tracking</span>';
+        } else {
+            phase2.classList.remove('active');
+            phase1.classList.add('active');
+            toggle.innerHTML = '<span>Phase 1: Morning Assignment</span>';
+        }
+    });
+
+    // Emergency Button
+    document.getElementById('emergencyBtn').addEventListener('click', function() {
+        document.getElementById('emergencyModal').style.display = 'flex';
+    });
+
+    function closeEmergencyModal() {
+        document.getElementById('emergencyModal').style.display = 'none';
+        document.getElementById('emergencySuggestions').style.display = 'none';
+        document.getElementById('emergencyForm').reset();
+        selectedEmergencyVehicle = null;
+    }
+
+    function getEmergencySuggestions() {
+        const location = document.getElementById('emergencyLocation').value;
+        const packageSize = document.getElementById('emergencyPackageSize').value;
+        const requiresFridge = document.getElementById('emergencyFridge').checked;
+
+        fetch('/api/emergency-suggestion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                location_address: location,
+                latitude: 40.7128,
+                longitude: -74.0060,
+                package_size: packageSize,
+                requires_fridge: requiresFridge
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayEmergencySuggestions(data);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayEmergencySuggestions(vehicles) {
+        const container = document.getElementById('emergencySuggestionsContainer');
+        container.innerHTML = '';
+
+        if (vehicles.length === 0) {
+            container.innerHTML = '<p class="no-suggestions">No suitable vehicles available at this time.</p>';
+            return;
+        }
+
+        vehicles.forEach((vehicle, index) => {
+            const html = `
+                <div class="suggestion-card vehicle-option" onclick="selectEmergencyVehicle(${vehicle.id}, '${vehicle.plate_number}', ${index})">
+                    <div class="option-header">
+                        <h4>${vehicle.plate_number} - ${vehicle.model}</h4>
+                        <span class="option-radio">
+                            <input type="radio" name="emergency-vehicle" value="${vehicle.id}" ${index === 0 ? 'checked' : ''}>
+                        </span>
+                    </div>
+                    <p><strong>Size:</strong> ${vehicle.size}</p>
+                    <p><strong>Fridge:</strong> ${vehicle.has_fridge ? '✓ Yes' : '✗ No'}</p>
+                    <p><strong>Distance:</strong> ${vehicle.distance_to_emergency_km} km</p>
+                    <p><strong>ETA:</strong> ${vehicle.eta_minutes} minutes</p>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+
+        document.getElementById('emergencySuggestions').style.display = 'block';
+        document.getElementById('assignEmergencyBtn').style.display = 'block';
+    }
+
+    function selectEmergencyVehicle(vehicleId, plateNumber, index) {
+        selectedEmergencyVehicle = vehicleId;
+        document.querySelectorAll('input[name="emergency-vehicle"]').forEach((input, i) => {
+            input.checked = i === index;
+        });
+    }
+
+    function assignEmergencyDelivery() {
+        if (!selectedEmergencyVehicle) {
+            alert('Please select a vehicle');
+            return;
+        }
+
+        const location = document.getElementById('emergencyLocation').value;
+        const packageSize = document.getElementById('emergencyPackageSize').value;
+        const requiresFridge = document.getElementById('emergencyFridge').checked;
+        const weight = document.getElementById('emergencyWeight').value;
+
+        fetch('/api/create-emergency', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                location_address: location,
+                latitude: 40.7128,
+                longitude: -74.0060,
+                package_size: packageSize,
+                requires_fridge: requiresFridge,
+                package_weight: weight,
+                truck_id: selectedEmergencyVehicle,
+                driver_id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Emergency delivery assigned successfully!');
+            closeEmergencyModal();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function selectDelivery(deliveryId, packageSize, requiresFridge) {
+        currentDelivery = { id: deliveryId, packageSize, requiresFridge };
+        
+        fetch('/api/suggest-vehicle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                delivery_id: deliveryId,
+                package_size: packageSize,
+                requires_fridge: requiresFridge,
+                distance_km: 50
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayVehicleSuggestions(data);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayVehicleSuggestions(vehicles) {
+        const container = document.getElementById('suggestionsContainer');
+        container.innerHTML = '';
+
+        if (vehicles.length === 0) {
+            container.innerHTML = '<p class="no-suggestions">No suitable vehicles available.</p>';
+            return;
+        }
+
+        vehicles.forEach((vehicle, index) => {
+            const html = `
+                <div class="suggestion-card" onclick="selectVehicle(${vehicle.id}, '${vehicle.plate_number}')">
+                    <div class="option-header">
+                        <h4>${vehicle.plate_number} - ${vehicle.model}</h4>
+                        <span class="match-badge">✓ Match</span>
+                    </div>
+                    <p><strong>Size:</strong> ${vehicle.size}</p>
+                    <p><strong>Capacity:</strong> ${vehicle.capacity_kg}kg</p>
+                    <p><strong>Fridge:</strong> ${vehicle.has_fridge ? '✓ Available' : '✗ Not Available'}</p>
+                    <button class="btn-select" onclick="event.stopPropagation(); assignVehicle(${vehicle.id})">
+                        Assign This Vehicle
+                    </button>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+
+        document.getElementById('vehicleSuggestions').style.display = 'block';
+    }
+
+    function selectVehicle(vehicleId, plateName) {
+        selectedVehicle = vehicleId;
+    }
+
+    function assignVehicle(vehicleId) {
+        if (!currentDelivery) {
+            alert('No delivery selected');
+            return;
+        }
+
+        fetch('/api/assign-delivery', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                delivery_id: currentDelivery.id,
+                truck_id: vehicleId,
+                driver_id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Delivery assigned successfully!');
+            location.reload();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function closeVehicleModal() {
+        document.getElementById('vehicleModal').style.display = 'none';
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const emergencyModal = document.getElementById('emergencyModal');
+        const vehicleModal = document.getElementById('vehicleModal');
+        
+        if (event.target === emergencyModal) {
+            closeEmergencyModal();
+        }
+        if (event.target === vehicleModal) {
+            closeVehicleModal();
+        }
+    };
+</script>
+{% endblock %}

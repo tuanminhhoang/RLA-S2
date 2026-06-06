@@ -1,0 +1,469 @@
+/* Driver Dashboard Styles */
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.welcome-text {
+    margin: 5px 0 0 0;
+    font-size: 0.95em;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.btn-phase-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-phase-toggle:hover {
+    background: white;
+    color: #4CAF50;
+}
+
+.btn-logout {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: white;
+    color: #4CAF50;
+}
+
+.dashboard-main {
+    padding: 30px;
+}
+
+.phase-section {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.phase-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.phase-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    border-bottom: 3px solid #4CAF50;
+    padding-bottom: 10px;
+}
+
+.phase-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Phase 1 Styles */
+.assignment-status {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.status-card {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-left: 4px solid #4CAF50;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.status-card h3 {
+    margin-top: 0;
+    color: #2e7d32;
+}
+
+.status-message {
+    color: #558b2f;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.assigned-deliveries h4 {
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.assignment-card {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 4px solid #4CAF50;
+}
+
+.assignment-card p {
+    margin: 6px 0;
+    color: #666;
+}
+
+.no-assignments {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Phase 2 Styles */
+.tracking-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.vehicle-status,
+.route-progress,
+.simulation-controls,
+.active-deliveries {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.vehicle-status h3,
+.route-progress h3,
+.simulation-controls h3,
+.active-deliveries h3 {
+    margin-top: 0;
+    color: #2e7d32;
+    font-size: 1.2em;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.info-box {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.info-box label {
+    display: block;
+    font-weight: bold;
+    color: #666;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: 1.2em;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.current-stop {
+    background: white;
+    border-left: 4px solid #ff9800;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.current-stop p {
+    margin: 8px 0;
+    color: #333;
+}
+
+.upcoming-stops {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.upcoming-stops h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+.upcoming-stops ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.upcoming-stops li {
+    margin: 10px 0;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.eta {
+    background: #e8f5e9;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #4CAF50;
+    font-size: 0.85em;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.deliveries-list {
+    margin-top: 15px;
+}
+
+.delivery-item {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 4px solid #4CAF50;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-icon {
+    font-size: 1.8em;
+    margin-right: 15px;
+}
+
+.delivery-details {
+    flex: 1;
+}
+
+.delivery-destination {
+    margin: 0;
+    font-weight: bold;
+    color: #333;
+}
+
+.delivery-package {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.no-deliveries {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Buttons */
+.btn-arrived,
+.btn-simulate {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.btn-arrived {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-arrived:hover {
+    background: #0b7dda;
+    transform: scale(1.02);
+}
+
+.btn-simulate {
+    background: #4CAF50;
+    color: white;
+    min-width: 150px;
+}
+
+.btn-simulate:hover {
+    background: #45a049;
+}
+
+.btn-pause {
+    background: #ff9800;
+}
+
+.btn-pause:hover {
+    background: #e68900;
+}
+
+.btn-stop {
+    background: #f44336;
+}
+
+.btn-stop:hover {
+    background: #da190b;
+}
+
+.simulation-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+.simulation-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 1.5em;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-main {
+        padding: 15px;
+    }
+
+    .phase-section h2 {
+        font-size: 1.4em;
+    }
+
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .simulation-buttons {
+        flex-direction: column;
+    }
+
+    .btn-simulate {
+        width: 100%;
+    }
+
+    .upcoming-stops li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .eta {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .btn-phase-toggle,
+    .btn-logout {
+        font-size: 0.85em;
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 15px;
+    }
+
+    .header-content h1 {
+        font-size: 1.2em;
+    }
+
+    .phase-section h2 {
+        font-size: 1.2em;
+    }
+
+    .info-box {
+        padding: 12px;
+    }
+
+    .info-box p {
+        font-size: 1em;
+    }
+
+    .delivery-item {
+        flex-wrap: wrap;
+    }
+
+    .delivery-icon {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+}
