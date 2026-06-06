@@ -1,0 +1,6 @@
+.env
+MediRun website/.env
+__pycache__/
+*.pyc
+venv/
+.venv/
