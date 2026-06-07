@@ -47,6 +47,15 @@ Deliver a working prototype that helps a medical delivery manager suggest, revie
 
 The project timeline and GANTT-style planning table are documented in `PROJECT_TIMELINE.md`.
 
+## Courses And Skills Used
+
+The project used knowledge from several courses and skill areas:
+
+- AI for Software Engineering: helped the team structure requirements, compare possible improvements, and use AI support for documentation and prototype direction.
+- Intermediate Python: supported the Flask backend, database connection logic, route generation functions, and debugging.
+- Algorithms: helped with the greedy planning heuristic, priority sorting, route ordering, and constraint checks.
+- Databases: supported the MySQL schema, relationships between deliveries/drivers/vehicles/routes, and seed data organization.
+
 ## Communication Method
 
 The team should keep a shared checklist and update it after each work session. Any change to the algorithm or database should be written down so every member can explain the project direction.
