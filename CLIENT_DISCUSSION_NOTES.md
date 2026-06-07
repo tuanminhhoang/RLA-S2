@@ -6,6 +6,13 @@ The goal of the interview was to understand how the medical delivery company act
 
 The discussion helped us identify the important operational constraints: delivery volume, vehicles, drivers, urgent deliveries, refrigerated products, time windows, and the type of visibility the manager needs when something goes wrong.
 
+## Participants
+
+- Victor Oganwo — group leader and project coordinator; supported the interview and connected the answers to the backend, database, and planning workflow.
+- Tuan Minh Hoang — main lead for the client interview and client notes; asked the main operational questions and helped organize the answers into prototype requirements.
+- Bao Duong — supported the discussion by asking workflow questions and checking whether the answers made sense for the demo flow.
+- Client representative — delivery company CEO / operations manager for the RLA delivery company scenario.
+
 ## 2. Main Questions Asked
 
 ## Company Activity
@@ -273,6 +280,25 @@ The client would consider the tool successful if:
 - There are fewer phone calls.
 - Delays can be explained clearly.
 - The manager trusts the tool even on a bad Monday.
+
+## Discussion Record
+
+This is a cleaned record of the client discussion. It is not written as a full word-for-word transcript, but it shows the questions asked, the answers received, and how the answers affected the prototype.
+
+| Topic | Main question asked | Client answer / information received | Prototype decision |
+| --- | --- | --- | --- |
+| Company activity | What does the company deliver and who are the customers? | The company delivers medical products to pharmacies, clinics, medical centers, and one main hospital around Paris and the inner suburbs. | The prototype uses fake medical clients: pharmacies, clinics, medical centers, and a hospital. |
+| Warehouse flow | Where do drivers start and finish? | Drivers start from a small warehouse in the morning and usually return there after routes. | Routes use a warehouse starting point and zone-based return estimates. |
+| Delivery volume | How many deliveries happen per day? | A normal day has around 45 to 50 deliveries. A busy Monday has around 55 to 60 deliveries. | The demo data includes a busy Monday and normal weekday schedules. |
+| Regular locations | How many regular delivery locations exist? | Around 35 regular locations: 1 hospital, 6 clinics/medical centers, 15 Paris pharmacies, and 13 inner-suburb pharmacies. | The database seed uses realistic fake Paris and suburb medical delivery locations. |
+| Vehicles | How many vehicles are available and are they interchangeable? | There are 6 vehicles: 3 small vans, 2 large vans, and 1 refrigerated vehicle. Vehicles are not interchangeable, and one driver keeps one vehicle for the day. | The prototype includes vehicle types, capacity logic, refrigerated capability, and one vehicle per route/day. |
+| Drivers | How many drivers are available and what are their working limits? | There are 5 drivers. They usually work 8-hour shifts, with 10 hours as a maximum if necessary. | The prototype uses Driver 1 to Driver 5, checks route duration, and shows warnings for driver hours. |
+| Hospital delivery | Is any customer more urgent than others? | The hospital is a special case because it has a strict early morning delivery window before 9:00. | Hospital deliveries are treated as urgent and planned early. |
+| Refrigerated deliveries | How should temperature-sensitive deliveries be handled? | Usually 6 to 10 deliveries per day need refrigeration, and only the refrigerated vehicle can handle them. | The route suggestion logic prioritizes refrigerated deliveries and warns if the wrong vehicle is used. |
+| Emergency deliveries | Should emergency requests be inserted automatically? | Emergency same-day requests can happen, but the system should not automatically insert them into routes. The manager should decide. | The prototype flags emergency deliveries and shows affected routes instead of fully auto-rerouting. |
+| Driver assignment | Should the website fully assign drivers automatically? | The client said the system should suggest routes and suggested drivers, but the manager must stay in control and confirm or adjust the plan. | The app now creates draft route suggestions first, lets the manager change driver/vehicle choices, and only publishes routes after confirmation. |
+| Delays | What should happen when delays occur? | The main need is visibility and traceability, not automatic punishment. The manager wants to explain why something was late. | The prototype includes delayed/failed statuses, warning text, and delay/risk visibility on manager pages. |
+| Success | What would make the tool useful? | Monday mornings should be calmer, drivers should know what they are doing, and the manager should not rewrite routes several times before 9:00. | The prototype focuses on daily planning, route review, warnings, and simple driver execution. |
 
 ## 4. What We Understood
 

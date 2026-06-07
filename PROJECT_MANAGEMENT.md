@@ -2,11 +2,12 @@
 
 ## Objective
 
-Deliver a working prototype that helps a medical delivery manager generate daily routes and lets drivers view and update their assigned stops.
+Deliver a working prototype that helps a medical delivery manager suggest, review, confirm, and monitor daily routes while drivers view and update their confirmed stops.
 
 ## Success Metrics
 
-- Manager can generate a daily delivery plan.
+- Manager can create a draft daily route suggestion.
+- Manager can review, adjust, confirm, cancel, or replan a route suggestion.
 - Routes are saved in the database.
 - Each route has ordered stops.
 - Drivers only see their own route.
@@ -24,22 +25,27 @@ Deliver a working prototype that helps a medical delivery manager generate daily
 - Database scripts exist.
 - Vehicle suggestion exists.
 - Emergency delivery workflow exists.
-- Daily route generation has been added.
+- Daily route suggestion has been added.
+- Manager review/confirm/cancel workflow has been added.
 - Driver-specific route view has been added.
+- Paris medical demo data has been added.
+- Assessment documentation has been updated.
 
 ## In Progress
 
-- Testing the full setup with a local MySQL database.
-- Polishing UI details after real data is loaded.
-- Expanding sample data toward full 45 to 60 delivery days.
+- Final demo flow testing.
+- Preparing the final presentation.
+- Checking that the local `.env` file is removed before any zipped submission.
 
 ## Next
 
-- Add more realistic clients until the project reaches about 35 regular locations.
-- Add more seed deliveries for busy Monday demonstration.
-- Add screenshots for the report.
-- Write client discussion notes.
-- Fill in team roles and time spent.
+- Run the final manager and driver demo flow.
+- Add screenshots to slides if needed.
+- Make sure each team member can explain the full project flow.
+
+## Timeline And GANTT
+
+The project timeline and GANTT-style planning table are documented in `PROJECT_TIMELINE.md`.
 
 ## Communication Method
 

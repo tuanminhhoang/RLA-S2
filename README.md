@@ -182,6 +182,8 @@ password: demo
 
 - `TO-DO.md` - original project brief
 - `PROJECT_CHECKLIST.md` - implementation checklist
+- `PROJECT_MANAGEMENT.md` - project objectives, board, and work method notes
+- `PROJECT_TIMELINE.md` - timeline, GANTT-style view, and project board
 - `database/04_enhance_database.sql` - main schema
 - `database/06_seed_data.sql` - Paris medical delivery demo data
 - `MediRun website/flash.py` - Flask backend

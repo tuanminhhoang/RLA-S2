@@ -243,7 +243,7 @@ Deliverable needed:
 ### Contextualize - Client Discussion
 
 - [x] Add transcript or notes from client discussion.
-- [ ] Add participant names.
+- [x] Add participant names.
 - [x] Add summary of discussion.
 - [x] Add action points from discussion.
 - [x] Create cleaned client interview notes in `CLIENT_DISCUSSION_NOTES.md`.
@@ -251,7 +251,7 @@ Deliverable needed:
 
 Deliverable needed:
 
-- [ ] Written transcript of discussions, including participant names.
+- [x] Written transcript of discussions, including participant names.
 
 ### Prototype - Inputs, Constraints, And Relationships
 
@@ -304,13 +304,13 @@ Deliverable needed:
 - [x] Define clear project objectives.
 - [x] Define success metrics.
 - [x] Create a project management board or planning document.
-- [ ] Add timeline or GANTT chart.
+- [x] Add timeline or GANTT chart.
 - [x] Add reflective writing about working methods.
 - [x] Add reflective writing about communication methods.
 
 Deliverable needed:
 
-- [ ] Project management tool such as GANTT, Trello, or 4-quadrants board.
+- [x] Project management tool such as GANTT, Trello, or 4-quadrants board.
 - [x] Reflective writing about work and communication.
 
 ### Integrate - Team Roles
