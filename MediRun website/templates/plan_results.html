@@ -17,7 +17,6 @@
             <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
             <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
             <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
             <a class="active" href="{{ url_for('plan_results', plan_date=selected_date) }}">Plan Results</a>
         </nav>
         <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
@@ -26,10 +25,24 @@
     <main class="dashboard-main app-main">
         <header class="page-header">
             <div>
-                <h1>Plan Results</h1>
-                <p>{{ selected_date }} route plan</p>
+                <h1>{% if plan_state.has_draft %}Suggested Plan Review{% elif plan_state.has_confirmed %}Confirmed Plan Review{% else %}Plan Review{% endif %}</h1>
+                <p>
+                    {% if plan_state.has_draft %}
+                    {{ selected_date }} draft route suggestions. Confirm when the manager is happy with the plan.
+                    {% elif plan_state.has_confirmed %}
+                    {{ selected_date }} confirmed route plan. Drivers can see these routes.
+                    {% else %}
+                    No route suggestions have been created for {{ selected_date }} yet.
+                    {% endif %}
+                </p>
             </div>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}" class="primary-action">Regenerate</a>
+            {% if plan_state.has_draft %}
+            <a href="{{ url_for('generate_plan', date=selected_date, replan=1) }}" class="primary-action">Create New Suggestions</a>
+            {% elif plan_state.has_confirmed %}
+            <a href="{{ url_for('generate_plan', date=selected_date, replan=1) }}" class="primary-action">Replan This Day</a>
+            {% else %}
+            <a href="{{ url_for('generate_plan', date=selected_date) }}" class="primary-action">Suggest Plan</a>
+            {% endif %}
         </header>
 
         <section class="summary-grid">
@@ -39,11 +52,63 @@
             <div class="summary-card warning"><span>{{ stats.unassigned }}</span><p>Unassigned</p></div>
         </section>
 
+        {% set draft_count = routes | selectattr('status', 'equalto', 'planning') | list | length %}
+        {% if routes %}
+        <section class="review-actions">
+            <div>
+                <h2>Manager Control</h2>
+                <p>Routes stay as draft suggestions until the manager confirms them. Drivers only see confirmed routes.</p>
+            </div>
+            {% if draft_count %}
+            <form method="post" action="{{ url_for('confirm_plan', plan_date=selected_date) }}">
+                <button class="btn-assign" type="submit">Confirm Plan For Drivers</button>
+            </form>
+            {% else %}
+            <span class="status-badge status-active">Confirmed</span>
+            {% endif %}
+            <form method="post" action="{{ url_for('cancel_plan', plan_date=selected_date) }}" onsubmit="return confirm('Cancel this plan and return deliveries to pending?');">
+                <button class="btn-cancel-plan" type="submit">Cancel Plan</button>
+            </form>
+        </section>
+        {% endif %}
+
         {% for route in routes %}
         <section class="table-panel route-panel">
-            <h2>{{ route.driver_name }} - {{ route.plate_number }} {{ route.model }}</h2>
-            <p>{{ route.total_stops }} stops. Estimated end: {{ route.estimated_end_time or '-' }}. Duration: {{ route.total_duration_minutes }} minutes.</p>
+            <div class="route-review-header">
+                <div>
+                    <h2>{{ route.driver_name }} - {{ route.plate_number }} {{ route.model }}</h2>
+                    <p>{{ route.total_stops }} stops. Estimated end: {{ route.estimated_end_time or '-' }}. Duration: {{ route.total_duration_minutes }} minutes.</p>
+                    <p>Status: <span class="status-badge status-{{ route.status }}">{{ route.status }}</span></p>
+                </div>
+                {% if route.status == 'planning' %}
+                <form class="route-assignment-form" method="post" action="{{ url_for('update_route_assignment', route_id=route.id) }}">
+                    <input type="hidden" name="plan_date" value="{{ selected_date }}">
+                    <label>
+                        Suggested driver
+                        <select name="driver_id">
+                            {% for driver in drivers %}
+                            <option value="{{ driver.id }}" {% if driver.id == route.driver_id %}selected{% endif %}>{{ driver.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Suggested vehicle
+                        <select name="vehicle_id">
+                            {% for vehicle in vehicles %}
+                            <option value="{{ vehicle.id }}" {% if vehicle.id == route.truck_id %}selected{% endif %}>
+                                {{ vehicle.plate_number }} - {{ vehicle.model }}{% if vehicle.has_fridge %} - fridge{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button class="btn-select" type="submit">Save Suggestion</button>
+                </form>
+                {% endif %}
+            </div>
             {% if route.warning_text %}<p class="warning-text">{{ route.warning_text }}</p>{% endif %}
+            {% for warning in route.assignment_warnings %}
+            <p class="warning-text">{{ warning }}</p>
+            {% endfor %}
             <table class="data-table">
                 <thead>
                     <tr>
@@ -83,7 +148,7 @@
         </section>
         {% else %}
         <section class="vehicle-suggestions">
-            <p class="no-suggestions">No routes have been generated for this date yet.</p>
+            <p class="no-suggestions">No route suggestions have been created for this date yet.</p>
         </section>
         {% endfor %}
     </main>

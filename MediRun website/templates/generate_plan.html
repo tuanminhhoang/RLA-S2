@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Generate Plan - MediRun{% endblock %}
+{% block title %}Suggest Plan - MediRun{% endblock %}
 {% block body_class %}dashboard-page{% endblock %}
 
 {% block extra_head %}
@@ -17,7 +17,11 @@
             <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
             <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
             <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
-            <a class="active" href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+            {% if plan_state.has_plan %}
+            <a href="{{ url_for('plan_results', plan_date=selected_date) }}">Review Plan</a>
+            {% else %}
+            <a class="active" href="{{ url_for('generate_plan', date=selected_date) }}">Suggest Plan</a>
+            {% endif %}
         </nav>
         <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
     </aside>
@@ -25,8 +29,14 @@
     <main class="dashboard-main app-main">
         <header class="page-header">
             <div>
-                <h1>Generate Daily Delivery Plan</h1>
-                <p>Build routes using the greedy planning heuristic.</p>
+                <h1>{% if plan_state.has_plan %}Create New Suggestions{% else %}Suggest Daily Delivery Plan{% endif %}</h1>
+                <p>
+                    {% if plan_state.has_plan %}
+                    Replace the current plan for this date with a new draft suggestion.
+                    {% else %}
+                    Build draft route suggestions using the greedy planning heuristic.
+                    {% endif %}
+                </p>
             </div>
         </header>
 
@@ -38,9 +48,9 @@
                     Delivery date
                     <input type="date" name="date" value="{{ selected_date }}">
                 </label>
-                <button class="btn-emergency" type="submit">Generate Today's Delivery Plan</button>
+                <button class="btn-emergency" type="submit">{% if plan_state.has_plan %}Replace With New Suggestions{% else %}Suggest Today's Delivery Plan{% endif %}</button>
             </form>
-            <p class="hint-text">The system sorts urgent deliveries first, handles refrigerated stops early, chooses compatible vehicles, estimates zone travel time, saves routes, and records warnings.</p>
+            <p class="hint-text">The system sorts urgent deliveries first, handles refrigerated stops early, suggests compatible drivers and vehicles, estimates zone travel time, saves draft routes, and records warnings. The manager confirms the final plan before drivers receive it.</p>
         </section>
     </main>
 </div>

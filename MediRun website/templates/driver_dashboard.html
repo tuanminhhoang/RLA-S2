@@ -23,7 +23,7 @@
         <header class="page-header">
             <div>
                 <h1>My Route</h1>
-                <p>Only your assigned stops for {{ selected_date }} are shown here.</p>
+                <p>Only manager-confirmed stops for {{ selected_date }} are shown here.</p>
             </div>
         </header>
 
@@ -80,7 +80,7 @@
         {% else %}
             {% if driver %}
             <section class="phase-content">
-                <p class="no-deliveries">No route has been assigned to you for this date.</p>
+                <p class="no-deliveries">No confirmed route has been assigned to you for this date.</p>
             </section>
             {% endif %}
         {% endfor %}

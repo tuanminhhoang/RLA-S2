@@ -2,7 +2,7 @@
 
 MediRun is a student RLA prototype for a medical delivery planning dashboard. It is designed for a small/medium delivery company operating around Paris and the inner suburbs.
 
-The prototype helps a manager organize daily and weekly medical deliveries by assigning deliveries to drivers and vehicles, generating route plans, showing warnings, and giving drivers a clear list of their stops.
+The prototype helps a manager organize daily and weekly medical deliveries by suggesting route plans, showing warnings, letting the manager adjust driver and vehicle choices, and giving drivers a clear list of stops after the manager confirms the plan.
 
 This is not a production system. It is not a real GPS tracking platform. It uses simple zone-based travel times and a greedy planning heuristic so the project can be explained clearly in an RLA demo.
 
@@ -18,7 +18,7 @@ The goal is to support a manager who needs to plan medical deliveries under cons
 - busy Monday delivery volume
 - emergency deliveries during the day
 
-The system also gives each driver a private route page so they only see their own assigned stops.
+The system also gives each driver a private route page so they only see their own manager-confirmed stops.
 
 ## Main Features
 
@@ -30,13 +30,15 @@ The system also gives each driver a private route page so they only see their ow
   - delayed or failed deliveries
   - unassigned deliveries
   - emergency events
-  - generated routes
+  - suggested routes
 - Weekly planning view.
 - Deliveries page with filters.
 - Fleet page for drivers and vehicles.
-- Generate Plan page.
-- Plan Results page showing route stops, ETA, travel time, service time, distance estimate, and warnings.
-- Driver route page showing only the logged-in driver's stops.
+- Suggest Plan page.
+- Plan Results page showing draft route suggestions, route stops, ETA, travel time, service time, distance estimate, and warnings.
+- Manager review controls for changing the suggested driver or vehicle before confirmation.
+- Confirm Plan button so drivers only receive routes after manager approval.
+- Driver route page showing only the logged-in driver's confirmed stops.
 - Driver status updates:
   - in progress
   - delivered
@@ -155,18 +157,20 @@ password: demo
 1. Login as `manager_demo`.
 2. Open the Weekly Plan page.
 3. Open Monday to show the busy delivery day.
-4. Generate the plan for Monday.
-5. Open Plan Results to show routes per driver.
-6. Check travel time, service time, ETA, distance estimate, and warnings.
-7. Logout.
-8. Login as `driver1`.
-9. Open My Week or My Route.
-10. Update a stop status.
+4. Suggest the plan for Monday.
+5. Open Plan Results to review draft routes per driver.
+6. Adjust a suggested driver or vehicle if needed.
+7. Confirm the plan so drivers can see their routes.
+8. Logout.
+9. Login as `driver1`.
+10. Open My Week or My Route.
+11. Update a stop status.
 
 ## Important Limitations
 
 - This is a student prototype, not a production application.
 - Route planning is greedy and explainable, not mathematically optimal.
+- The system suggests route assignments; the manager makes the final decision.
 - Travel time and distance are estimated from operational zones, not real road data.
 - There is no live GPS tracking.
 - There are no push notifications.

@@ -74,6 +74,7 @@ The discussion helped us identify the important operational constraints: deliver
 - What should drivers see?
 - What warnings should the system show?
 - What would make the tool successful for the client?
+- Should the system assign drivers automatically, or should it suggest a plan for the manager to approve?
 
 ## 3. Important Client Answers
 
@@ -216,6 +217,8 @@ Before planning, the company knows:
 
 Each delivery belongs to one date. The manager thinks in terms of today's deliveries or tomorrow's deliveries. The admin/manager should be able to select a date, especially Monday, and generate the plan for that day.
 
+The client clarified that the system should not fully decide driver assignments on its own. The preferred approach is that the website suggests route plans and suggested drivers, then the manager reviews and adjusts them if needed. This is especially important on Mondays because the manager wants help getting most of the plan ready quickly, but still needs to stay in control.
+
 The zones are:
 
 - Warehouse
@@ -229,11 +232,11 @@ For the first prototype, zone-based travel estimates should be used instead of r
 
 The expected output is:
 
-- clear daily route plan per driver
+- clear daily route suggestion per driver
 - manager overview
 - warnings
-- assigned driver
-- assigned vehicle
+- suggested or confirmed driver
+- suggested or confirmed vehicle
 - stop order
 - estimated arrival time
 - delivery status
@@ -275,7 +278,7 @@ The client would consider the tool successful if:
 
 We understood that the problem is not only about finding a route. It is also about planning, visibility, warnings, and traceability.
 
-The manager needs an overview and control. They need to see what is urgent, what is risky, which deliveries are assigned, and why a delivery might become late.
+The manager needs an overview and control. They need to see what is urgent, what is risky, which deliveries are suggested or confirmed, and why a delivery might become late.
 
 The driver does not need to see everything. The driver needs a simple route execution page with their own stops, deadlines, and status updates.
 
@@ -290,10 +293,13 @@ The interview affected the prototype in these ways:
 - We used the delivery statuses: Pending, Assigned, In progress, Delivered, Delayed, and Failed.
 - We used zone-based travel times instead of real GPS.
 - We made route generation work by selected date.
+- We changed the plan workflow so generated routes are draft suggestions first.
+- We added a manager review and confirmation step before drivers receive routes.
+- We allowed the manager to adjust suggested drivers and vehicles.
 - We added a refrigerated vehicle rule because no other vehicle can replace it.
 - We added an emergency flag and emergency event visibility.
 - We added warnings for late risk, wrong vehicle type, refrigerated delivery problems, route overload, driver hours, unassigned deliveries, and emergency deliveries.
-- We added a driver route page so each driver only sees their own assigned route.
+- We added a driver route page so each driver only sees their own confirmed route.
 
 ## 6. Assumptions
 
@@ -302,6 +308,7 @@ The interview affected the prototype in these ways:
 - The first prototype does not use real GPS.
 - Travel time is estimated by zone.
 - One driver keeps one vehicle for the whole day.
+- Route assignments are suggested by the prototype and confirmed by the manager.
 - The manager decides emergency changes instead of the system automatically changing routes.
 - The prototype is decision-support software, not production software.
 

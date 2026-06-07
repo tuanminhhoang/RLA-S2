@@ -17,7 +17,11 @@
             <a class="active" href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
             <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
             <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+            {% if plan_state.has_plan %}
+            <a href="{{ url_for('plan_results', plan_date=selected_date) }}">Review Plan</a>
+            {% else %}
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Suggest Plan</a>
+            {% endif %}
         </nav>
         <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
     </aside>
@@ -53,8 +57,8 @@
                 </div>
                 <div class="week-actions">
                     <a class="btn-select" href="{{ url_for('manager_dashboard', date=day.date.strftime('%Y-%m-%d')) }}">Day</a>
-                    <a class="btn-select" href="{{ url_for('generate_plan', date=day.date.strftime('%Y-%m-%d')) }}">Plan</a>
-                    <a class="btn-select" href="{{ url_for('plan_results', plan_date=day.date.strftime('%Y-%m-%d')) }}">Routes</a>
+                    <a class="btn-select" href="{{ url_for('generate_plan', date=day.date.strftime('%Y-%m-%d')) }}">Suggest</a>
+                    <a class="btn-select" href="{{ url_for('plan_results', plan_date=day.date.strftime('%Y-%m-%d')) }}">Review</a>
                 </div>
             </article>
             {% endfor %}

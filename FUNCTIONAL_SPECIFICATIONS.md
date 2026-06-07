@@ -2,7 +2,7 @@
 
 ## Objective
 
-Build a decision-support prototype that helps a manager plan medical deliveries, assign drivers and vehicles, identify risks, and give drivers a clear route list.
+Build a decision-support prototype that helps a manager plan medical deliveries, review suggested drivers and vehicles, identify risks, confirm the final plan, and give drivers a clear route list.
 
 ## Technical Stack
 
@@ -21,8 +21,10 @@ The manager can:
 - View delivery summaries.
 - View and filter deliveries.
 - View drivers and vehicles.
-- Generate a daily delivery plan.
-- View route results.
+- Generate draft daily route suggestions.
+- View route results before confirming them.
+- Adjust suggested driver and vehicle choices.
+- Confirm the final plan so drivers can see their routes.
 - Add emergency deliveries.
 - See warnings and late-risk information.
 
@@ -30,7 +32,7 @@ The manager can:
 
 The driver can:
 
-- View only their assigned route.
+- View only their manager-confirmed route.
 - See vehicle and stop information.
 - See client, destination, deadline, priority, and refrigerated requirement.
 - Update stop status.
@@ -62,7 +64,9 @@ The driver can:
 - Deadlines should be checked against estimated arrival times.
 - Driver work should normally stay below 8 hours.
 - Driver work above 10 hours is a serious warning.
-- Each generated route is saved with ordered route stops.
+- Each suggested route is saved with ordered route stops.
+- Suggested routes stay in draft/planning status until the manager confirms them.
+- Drivers only see confirmed/active routes.
 
 ## Scaling Factors
 

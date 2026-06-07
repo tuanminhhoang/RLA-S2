@@ -464,14 +464,6 @@ def generate_daily_plan(plan_date):
             if index >= len(vehicles):
                 break
             vehicle = vehicles[index]
-            cursor.execute(
-                f"""
-                INSERT INTO {ASSIGNMENT_TABLE}
-                (assignment_date, driver_id, vehicle_id)
-                VALUES (%s, %s, %s)
-                """,
-                (selected, driver["id"], vehicle["id"]),
-            )
             assignments.append(
                 {
                     "driver": driver,
@@ -598,19 +590,6 @@ def generate_daily_plan(plan_date):
                 )
                 stop_count += 1
 
-                cursor.execute(
-                    f"""
-                    UPDATE {DELIVERY_TABLE}
-                    SET assigned_truck_id = %s, assigned_driver_id = %s, status = 'assigned'
-                    WHERE id = %s
-                    """,
-                    (
-                        assignment["vehicle"]["id"],
-                        assignment["driver"]["id"],
-                        delivery["id"],
-                    ),
-                )
-
             return_minutes = get_zone_travel_minutes(cursor, current_zone, "warehouse")
             total_minutes += return_minutes
             estimated_end = route_start + timedelta(minutes=total_minutes)
@@ -654,6 +633,73 @@ def generate_daily_plan(plan_date):
         connection.close()
 
 
+def refresh_route_warnings(cursor, route_id):
+    cursor.execute(
+        f"""
+        SELECT r.*, c.*
+        FROM {ROUTE_TABLE} r
+        JOIN {VEHICLE_TABLE} c ON c.id = r.truck_id
+        WHERE r.id = %s
+        """,
+        (route_id,),
+    )
+    route = cursor.fetchone()
+    if not route:
+        return
+
+    cursor.execute(
+        f"""
+        SELECT rs.*, dl.priority, dl.zone, dl.deadline, dl.requires_fridge,
+               dl.package_size, dl.service_time_minutes
+        FROM {ROUTE_STOPS_TABLE} rs
+        JOIN {DELIVERY_TABLE} dl ON dl.id = rs.delivery_id
+        WHERE rs.route_id = %s
+        ORDER BY rs.stop_order
+        """,
+        (route_id,),
+    )
+    stops = cursor.fetchall()
+    total_minutes = 0
+    for stop in stops:
+        total_minutes += int(stop["travel_minutes"] or 0) + int(stop["service_minutes"] or 0)
+        warning_text = route_warning(
+            stop,
+            route,
+            stop["estimated_arrival_time"],
+            int(stop["stop_order"]),
+            total_minutes,
+        )
+        cursor.execute(
+            f"UPDATE {ROUTE_STOPS_TABLE} SET warning_text = %s WHERE id = %s",
+            (warning_text, stop["id"]),
+        )
+
+
+def get_assignment_conflicts(plan_date):
+    selected = format_date(plan_date)
+    driver_rows = query_all(
+        f"""
+        SELECT driver_id, COUNT(*) AS route_count
+        FROM {ROUTE_TABLE}
+        WHERE route_date = %s
+        GROUP BY driver_id
+        """,
+        (selected,),
+    )
+    vehicle_rows = query_all(
+        f"""
+        SELECT truck_id, COUNT(*) AS route_count
+        FROM {ROUTE_TABLE}
+        WHERE route_date = %s
+        GROUP BY truck_id
+        """,
+        (selected,),
+    )
+    busy_drivers = {row["driver_id"] for row in driver_rows if row["driver_id"] and row["route_count"] > 1}
+    busy_vehicles = {row["truck_id"] for row in vehicle_rows if row["truck_id"] and row["route_count"] > 1}
+    return busy_drivers, busy_vehicles
+
+
 def get_plan_results(plan_date):
     selected = format_date(plan_date)
     routes = query_all(
@@ -667,7 +713,13 @@ def get_plan_results(plan_date):
         """,
         (selected,),
     )
+    busy_drivers, busy_vehicles = get_assignment_conflicts(plan_date)
     for route in routes:
+        route["assignment_warnings"] = []
+        if route["driver_id"] in busy_drivers:
+            route["assignment_warnings"].append("Driver is already suggested on another route")
+        if route["truck_id"] in busy_vehicles:
+            route["assignment_warnings"].append("Vehicle is already suggested on another route")
         route["stops"] = query_all(
             f"""
             SELECT rs.*, dl.priority, dl.zone, dl.deadline, dl.requires_fridge,
@@ -681,6 +733,39 @@ def get_plan_results(plan_date):
             (route["id"],),
         )
     return routes
+
+
+def get_plan_state(plan_date):
+    selected = format_date(plan_date)
+    row = query_one(
+        f"""
+        SELECT
+            COUNT(*) AS total_routes,
+            SUM(status = 'planning') AS draft_routes,
+            SUM(status = 'active') AS confirmed_routes
+        FROM {ROUTE_TABLE}
+        WHERE route_date = %s
+        """,
+        (selected,),
+    )
+    total_routes = int(row["total_routes"] or 0)
+    draft_routes = int(row["draft_routes"] or 0)
+    confirmed_routes = int(row["confirmed_routes"] or 0)
+    if draft_routes:
+        status = "draft"
+    elif confirmed_routes:
+        status = "confirmed"
+    else:
+        status = "none"
+    return {
+        "status": status,
+        "has_plan": total_routes > 0,
+        "has_draft": draft_routes > 0,
+        "has_confirmed": confirmed_routes > 0,
+        "total_routes": total_routes,
+        "draft_routes": draft_routes,
+        "confirmed_routes": confirmed_routes,
+    }
 
 
 def get_manager_week(selected_date):
@@ -731,7 +816,7 @@ def get_driver_week(selected_date, driver_id):
                SUM(r.total_stops) AS stops,
                SUM(r.total_duration_minutes) AS minutes
         FROM {ROUTE_TABLE} r
-        WHERE r.driver_id = %s AND r.route_date BETWEEN %s AND %s
+        WHERE r.driver_id = %s AND r.route_date BETWEEN %s AND %s AND r.status = 'active'
         GROUP BY r.route_date
         """,
         (driver_id, format_date(start), format_date(end)),
@@ -829,6 +914,7 @@ def manager_dashboard():
     emergency_events = get_emergency_events(selected_date)
     summary = get_manager_summary(selected_date)
     recent_routes = get_plan_results(selected_date)
+    plan_state = get_plan_state(selected_date)
     return render_template(
         "ceo_dashboard.html",
         username=session.get("username"),
@@ -838,6 +924,7 @@ def manager_dashboard():
         emergency_events=emergency_events,
         summary=summary,
         routes=recent_routes,
+        plan_state=plan_state,
     )
 
 
@@ -854,12 +941,14 @@ def manager_deliveries():
         "requires_fridge": request.args.get("requires_fridge", ""),
     }
     deliveries = get_deliveries(selected_date, filters)
+    plan_state = get_plan_state(selected_date)
     return render_template(
         "deliveries.html",
         username=session.get("username"),
         selected_date=format_date(selected_date),
         deliveries=deliveries,
         filters=filters,
+        plan_state=plan_state,
     )
 
 
@@ -882,6 +971,7 @@ def manager_fleet():
         """,
         (format_date(selected_date),),
     )
+    plan_state = get_plan_state(selected_date)
     return render_template(
         "fleet.html",
         username=session.get("username"),
@@ -889,6 +979,7 @@ def manager_fleet():
         drivers=drivers,
         vehicles=vehicles,
         assignments=assignments,
+        plan_state=plan_state,
     )
 
 
@@ -898,11 +989,13 @@ def manager_week():
     if blocked:
         return blocked
     selected_date = parse_selected_date(request.args.get("date"))
+    plan_state = get_plan_state(selected_date)
     return render_template(
         "manager_week.html",
         username=session.get("username"),
         selected_date=format_date(selected_date),
         week=get_manager_week(selected_date),
+        plan_state=plan_state,
     )
 
 
@@ -1024,10 +1117,13 @@ def generate_plan():
     if blocked:
         return blocked
     selected_date = parse_selected_date(request.form.get("date") or request.args.get("date"))
+    plan_state = get_plan_state(selected_date)
+    if request.method == "GET" and plan_state["has_plan"] and request.args.get("replan") != "1":
+        return redirect(url_for("plan_results", plan_date=format_date(selected_date)))
     result = None
     if request.method == "POST":
         result = generate_daily_plan(selected_date)
-        flash("Daily delivery plan generated.", "success")
+        flash("Draft route suggestions created. Review and confirm before drivers receive them.", "success")
         return redirect(url_for("plan_results", plan_date=format_date(selected_date), **result))
     pending_count = query_one(
         f"SELECT COUNT(*) AS value FROM {DELIVERY_TABLE} WHERE delivery_date = %s AND status = 'pending'",
@@ -1039,6 +1135,7 @@ def generate_plan():
         selected_date=format_date(selected_date),
         pending_count=pending_count,
         result=result,
+        plan_state=plan_state,
     )
 
 
@@ -1049,6 +1146,9 @@ def plan_results(plan_date):
         return blocked
     selected_date = parse_selected_date(plan_date)
     routes = get_plan_results(selected_date)
+    plan_state = get_plan_state(selected_date)
+    drivers = query_all(f"SELECT * FROM {DRIVER_TABLE} WHERE status = 'active' ORDER BY id")
+    vehicles = query_all(f"SELECT * FROM {VEHICLE_TABLE} WHERE status = 'available' ORDER BY has_fridge DESC, size DESC, id")
     stats = {
         "routes": request.args.get("routes", len(routes)),
         "stops": request.args.get("stops", sum(len(route["stops"]) for route in routes)),
@@ -1060,8 +1160,145 @@ def plan_results(plan_date):
         username=session.get("username"),
         selected_date=format_date(selected_date),
         routes=routes,
+        drivers=drivers,
+        vehicles=vehicles,
+        plan_state=plan_state,
         stats=stats,
     )
+
+
+@app.route("/manager/route/<int:route_id>/assignment", methods=["POST"])
+def update_route_assignment(route_id):
+    blocked = manager_required()
+    if blocked:
+        return blocked
+
+    driver_id = request.form.get("driver_id")
+    vehicle_id = request.form.get("vehicle_id")
+    plan_date = request.form.get("plan_date")
+    connection = get_db_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            UPDATE {ROUTE_TABLE}
+            SET driver_id = %s, truck_id = %s
+            WHERE id = %s AND status = 'planning'
+            """,
+            (driver_id, vehicle_id, route_id),
+        )
+        if cursor.rowcount == 0:
+            flash("Only draft route suggestions can be edited.", "error")
+        else:
+            refresh_route_warnings(cursor, route_id)
+            connection.commit()
+            flash("Draft route assignment updated.", "success")
+    except Exception as exc:
+        connection.rollback()
+        flash(f"Could not update route assignment: {exc}", "error")
+    finally:
+        connection.close()
+
+    return redirect(url_for("plan_results", plan_date=plan_date or format_date(parse_selected_date(None))))
+
+
+@app.route("/manager/plan-results/<plan_date>/confirm", methods=["POST"])
+def confirm_plan(plan_date):
+    blocked = manager_required()
+    if blocked:
+        return blocked
+
+    selected_date = parse_selected_date(plan_date)
+    selected = format_date(selected_date)
+    connection = get_db_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            UPDATE {DELIVERY_TABLE} d
+            JOIN {ROUTE_STOPS_TABLE} rs ON rs.delivery_id = d.id
+            JOIN {ROUTE_TABLE} r ON r.id = rs.route_id
+            SET d.assigned_truck_id = r.truck_id,
+                d.assigned_driver_id = r.driver_id,
+                d.status = 'assigned'
+            WHERE r.route_date = %s AND r.status = 'planning' AND d.status = 'pending'
+            """,
+            (selected,),
+        )
+        cursor.execute(
+            f"""
+            UPDATE {ROUTE_TABLE}
+            SET status = 'active'
+            WHERE route_date = %s AND status = 'planning'
+            """,
+            (selected,),
+        )
+        cursor.execute(f"DELETE FROM {ASSIGNMENT_TABLE} WHERE assignment_date = %s", (selected,))
+        cursor.execute(
+            f"""
+            INSERT INTO {ASSIGNMENT_TABLE} (assignment_date, driver_id, vehicle_id)
+            SELECT route_date, driver_id, truck_id
+            FROM (
+                SELECT route_date, driver_id, truck_id,
+                       ROW_NUMBER() OVER (PARTITION BY route_date, driver_id ORDER BY id) AS driver_rank,
+                       ROW_NUMBER() OVER (PARTITION BY route_date, truck_id ORDER BY id) AS vehicle_rank
+                FROM {ROUTE_TABLE}
+                WHERE route_date = %s AND status = 'active'
+            ) confirmed_routes
+            WHERE driver_rank = 1 AND vehicle_rank = 1
+            """,
+            (selected,),
+        )
+        connection.commit()
+        flash("Plan confirmed. Drivers can now see their routes.", "success")
+    except Exception as exc:
+        connection.rollback()
+        flash(f"Could not confirm plan: {exc}", "error")
+    finally:
+        connection.close()
+
+    return redirect(url_for("plan_results", plan_date=selected))
+
+
+@app.route("/manager/plan-results/<plan_date>/cancel", methods=["POST"])
+def cancel_plan(plan_date):
+    blocked = manager_required()
+    if blocked:
+        return blocked
+
+    selected_date = parse_selected_date(plan_date)
+    selected = format_date(selected_date)
+    connection = get_db_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            UPDATE {DELIVERY_TABLE} d
+            JOIN {ROUTE_STOPS_TABLE} rs ON rs.delivery_id = d.id
+            JOIN {ROUTE_TABLE} r ON r.id = rs.route_id
+            SET d.assigned_truck_id = NULL,
+                d.assigned_driver_id = NULL,
+                d.status = 'pending'
+            WHERE r.route_date = %s
+              AND r.status IN ('planning', 'active')
+              AND d.status IN ('assigned', 'in_transit', 'delayed')
+            """,
+            (selected,),
+        )
+        cursor.execute(f"DELETE FROM {ASSIGNMENT_TABLE} WHERE assignment_date = %s", (selected,))
+        cursor.execute(
+            f"DELETE FROM {ROUTE_TABLE} WHERE route_date = %s AND status IN ('planning', 'active')",
+            (selected,),
+        )
+        connection.commit()
+        flash("Plan cancelled. You can suggest a new plan for this date.", "success")
+    except Exception as exc:
+        connection.rollback()
+        flash(f"Could not cancel plan: {exc}", "error")
+    finally:
+        connection.close()
+
+    return redirect(url_for("manager_dashboard", date=selected))
 
 
 @app.route("/driver/dashboard")
@@ -1078,7 +1315,7 @@ def driver_dashboard():
             SELECT r.*, c.plate_number, c.model, c.size, c.has_fridge
             FROM {ROUTE_TABLE} r
             JOIN {VEHICLE_TABLE} c ON c.id = r.truck_id
-            WHERE r.driver_id = %s AND r.route_date = %s
+            WHERE r.driver_id = %s AND r.route_date = %s AND r.status = 'active'
             ORDER BY r.id DESC
             """,
             (driver["id"], format_date(selected_date)),
@@ -1146,7 +1383,7 @@ def update_stop_status(stop_id):
             SELECT rs.delivery_id
             FROM {ROUTE_STOPS_TABLE} rs
             JOIN {ROUTE_TABLE} r ON r.id = rs.route_id
-            WHERE rs.id = %s AND r.driver_id = %s
+            WHERE rs.id = %s AND r.driver_id = %s AND r.status = 'active'
             """,
             (stop_id, driver["id"]),
         )

@@ -1,6 +1,6 @@
 # MediRun Project Checklist
 
-Status checked against the current repository on 2026-06-06.
+Status checked against the current repository on 2026-06-07.
 
 Legend:
 
@@ -31,7 +31,7 @@ Note: items described as incomplete or needing more work are left unticked.
 - [x] Delivery assignment API exists.
 - [x] Emergency delivery creation API exists.
 - [x] Driver accounts are linked to specific driver records in the enhanced schema and seed data.
-- [x] Driver dashboard reads only the logged-in driver's generated route.
+- [x] Driver dashboard reads only the logged-in driver's manager-confirmed route.
 - [x] Old `edit.html` references routes such as `add_driver`, `add_car`, `delete_driver`, and `delete_car`, and compatibility routes now exist in `flash.py`.
 - [x] Driver route progress/status updates are saved to the database.
 
@@ -110,19 +110,24 @@ Note: items described as incomplete or needing more work are left unticked.
 - [x] Show daily vehicle assignments.
 - [x] Add or restore working add/delete routes for drivers and cars if the edit page is kept.
 
-### Generate Plan Page
+### Suggest / Generate Plan Page
 
 - [x] Create a generate plan page.
 - [x] Add date selector.
-- [x] Add `Generate Today's Delivery Plan` button.
-- [x] Generate route plans from selected date deliveries.
-- [x] Save generated routes.
-- [x] Save generated route stops.
+- [x] Add `Suggest Today's Delivery Plan` button.
+- [x] Generate draft route suggestions from selected date deliveries.
+- [x] Save suggested routes as draft/planning routes.
+- [x] Save suggested route stops.
+- [x] Keep manager in control instead of automatically publishing assignments to drivers.
+- [x] Add manager review step before drivers receive routes.
+- [x] Add manager confirmation step to publish routes to drivers.
+- [x] Allow manager to adjust suggested driver and vehicle before confirmation.
+- [x] Add cancel plan action so the manager can clear a draft/confirmed plan and return to `Suggest Plan`.
 
 ### Plan Results Page
 
 - [x] Create a plan results page.
-- [x] Show route results per driver.
+- [x] Show route suggestions per driver.
 - [x] Show assigned vehicle.
 - [x] Show stop order.
 - [x] Show client.
@@ -131,6 +136,8 @@ Note: items described as incomplete or needing more work are left unticked.
 - [x] Show estimated arrival time.
 - [x] Show priority.
 - [x] Show warnings.
+- [x] Show draft/confirmed route status.
+- [x] Drivers only see routes after manager confirmation.
 
 ### Driver Route Page
 
@@ -163,12 +170,13 @@ Note: items described as incomplete or needing more work are left unticked.
 - [x] Assign refrigerated deliveries to refrigerated vehicle.
 - [x] Assign Paris/light deliveries to small vans.
 - [x] Assign suburb/heavy deliveries to large vans.
-- [x] Assign one driver to one vehicle for the full day.
+- [x] Suggest one driver to one vehicle for the full day.
 - [x] Estimate travel time using zone-based travel times.
 - [x] Add service time at each stop.
 - [x] Check driver working time.
 - [x] Generate route stops in order.
-- [x] Save route plan to database.
+- [x] Save route plan suggestion to database.
+- [x] Confirmed route plans update delivery assignment fields.
 - [x] Show warnings when planning problems exist.
 
 ### Warning System
@@ -238,6 +246,8 @@ Deliverable needed:
 - [ ] Add participant names.
 - [x] Add summary of discussion.
 - [x] Add action points from discussion.
+- [x] Create cleaned client interview notes in `CLIENT_DISCUSSION_NOTES.md`.
+- [x] Explain how client answers shaped the prototype decisions.
 
 Deliverable needed:
 
@@ -308,12 +318,25 @@ Deliverable needed:
 - [x] Create team role table.
 - [x] Add each person's role.
 - [x] Add each person's tasks.
-- [ ] Add time spent per person.
-- [ ] Make sure each student can explain their own contribution.
+- [x] Add time spent per person.
+- [x] Make sure each student can explain their own contribution.
+- [x] Update `JOB_SPLIT.md` with realistic shared contributions.
+- [x] Update `TEAM_ROLES.md` with roles, tasks, evidence, and approximate time spent.
+- [x] Show that the team contributed across each other's parts: backend, database, frontend, HTML/CSS, workflow, testing, and presentation.
 
 Deliverable needed:
 
-- [ ] Table showing each person's role, associated tasks, and time spent.
+- [x] Table showing each person's role, associated tasks, and time spent.
+
+### Repository And Documentation Cleanup
+
+- [x] Remove real `.env` file from version control.
+- [x] Remove tracked Python cache files from version control.
+- [x] Add `.env`, `MediRun website/.env`, `__pycache__/`, `*.pyc`, `venv/`, and `.venv/` to `.gitignore`.
+- [x] Rewrite `README.md` as a student RLA prototype README instead of a production-ready claim.
+- [x] Add demo accounts and run instructions to the README.
+- [x] Add limitations to the README.
+- [x] Create/update job split and team roles documentation.
 
 ---
 

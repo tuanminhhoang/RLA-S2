@@ -17,8 +17,11 @@
             <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
             <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
             <a href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
-            {% if routes %}<a href="{{ url_for('plan_results', plan_date=selected_date) }}">Plan Results</a>{% endif %}
+            {% if plan_state.has_plan %}
+            <a href="{{ url_for('plan_results', plan_date=selected_date) }}">Review Plan</a>
+            {% else %}
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Suggest Plan</a>
+            {% endif %}
         </nav>
         <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
     </aside>
@@ -29,7 +32,13 @@
                 <h1>Manager Dashboard</h1>
                 <p>Planning date: {{ selected_date }}</p>
             </div>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}" class="primary-action">Generate Plan</a>
+            {% if plan_state.has_plan %}
+            <a href="{{ url_for('plan_results', plan_date=selected_date) }}" class="primary-action">
+                {% if plan_state.has_draft %}Review Suggested Plan{% else %}Review Confirmed Plan{% endif %}
+            </a>
+            {% else %}
+            <a href="{{ url_for('generate_plan', date=selected_date) }}" class="primary-action">Suggest Plan</a>
+            {% endif %}
         </header>
 
         <form class="filter-bar" method="get">
@@ -134,20 +143,21 @@
             </div>
 
             <section class="ops-panel routes-panel">
-                <h3>Generated Routes</h3>
+                <h3>Suggested Routes</h3>
                 {% if routes %}
                 <div class="routes-row">
                     {% for route in routes %}
                     <div class="suggestion-card">
                         <h4>{{ route.driver_name }} - {{ route.plate_number }}</h4>
                         <p>{{ route.total_stops }} stops, {{ route.total_duration_minutes }} minutes</p>
+                        <p>Status: {{ route.status|upper }}</p>
                         {% if route.warning_text %}<p class="warning-text">{{ route.warning_text }}</p>{% endif %}
                     </div>
                     {% endfor %}
                 </div>
-                <a class="btn-select" href="{{ url_for('plan_results', plan_date=selected_date) }}">Open Plan Results</a>
+                <a class="btn-select" href="{{ url_for('plan_results', plan_date=selected_date) }}">Review Suggested Plan</a>
                 {% else %}
-                <p class="no-suggestions">No generated plan yet for this date.</p>
+                <p class="no-suggestions">No suggested plan yet for this date.</p>
                 {% endif %}
             </section>
         </section>

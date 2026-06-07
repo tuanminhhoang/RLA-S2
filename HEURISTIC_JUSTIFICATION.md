@@ -8,7 +8,7 @@ This means the system makes practical local decisions in a clear order instead o
 
 ## Why This Fits The Prototype
 
-The project is a decision-support prototype. The goal is to show that the system can structure the manager's planning work, not to produce mathematically optimal routes.
+The project is a decision-support prototype. The goal is to show that the system can structure the manager's planning work, not to produce mathematically optimal routes or remove the manager's control.
 
 A greedy heuristic is suitable because:
 
@@ -30,8 +30,10 @@ A greedy heuristic is suitable because:
 8. Prefer large vans for suburb/heavy deliveries.
 9. Estimate travel time using zone-to-zone travel times.
 10. Add service time at each stop.
-11. Save routes and ordered route stops.
-12. Generate warnings when deadlines, vehicle rules, or driver hours are at risk.
+11. Save draft route suggestions and ordered route stops.
+12. Let the manager review and adjust suggested drivers or vehicles.
+13. Confirm the plan before drivers can see their assigned routes.
+14. Generate warnings when deadlines, vehicle rules, or driver hours are at risk.
 
 ## Warning Examples
 

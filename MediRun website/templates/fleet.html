@@ -17,7 +17,11 @@
             <a href="{{ url_for('manager_week', date=selected_date) }}">Weekly Plan</a>
             <a href="{{ url_for('manager_deliveries', date=selected_date) }}">Deliveries</a>
             <a class="active" href="{{ url_for('manager_fleet', date=selected_date) }}">Fleet</a>
-            <a href="{{ url_for('generate_plan', date=selected_date) }}">Generate Plan</a>
+            {% if plan_state.has_plan %}
+            <a href="{{ url_for('plan_results', plan_date=selected_date) }}">Review Plan</a>
+            {% else %}
+            <a href="{{ url_for('generate_plan', date=selected_date) }}">Suggest Plan</a>
+            {% endif %}
         </nav>
         <a class="sidebar-logout" href="{{ url_for('logout') }}">Logout</a>
     </aside>
@@ -26,7 +30,7 @@
         <header class="page-header">
             <div>
                 <h1>Drivers And Vehicles</h1>
-                <p>Availability and daily vehicle assignments for {{ selected_date }}.</p>
+                <p>Availability and manager-reviewed vehicle assignments for {{ selected_date }}.</p>
             </div>
         </header>
 
@@ -75,7 +79,7 @@
                     {% for assignment in assignments %}
                     <tr><td>{{ assignment.full_name }}</td><td>{{ assignment.plate_number }}</td><td>{{ assignment.model }}</td></tr>
                     {% else %}
-                    <tr><td colspan="3" class="empty-cell">No assignments generated for this date yet.</td></tr>
+                    <tr><td colspan="3" class="empty-cell">No manager-reviewed assignments for this date yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
