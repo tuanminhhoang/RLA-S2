@@ -61,6 +61,8 @@ The system also gives each driver a private route page so they only see their ow
 
 ## Setup
 
+If you download the project from GitHub as a ZIP, the local environment file is not included. You must create `MediRun website/.env` before running the Flask app because it contains your local MySQL connection settings.
+
 ### 1. Install Python Dependencies
 
 ```powershell
